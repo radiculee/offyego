@@ -40,3 +40,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Claude Code per-developer settings (team settings.json is committed)
+.claude/settings.local.json
+
+# Binary documents (receipts, PDFs, screenshots)
+*.pdf
