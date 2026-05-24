@@ -16,6 +16,11 @@ import type { Voice } from '@/types/pub';
  */
 export const localLadVoice: Voice = {
   spinButton: "Spin the feckin' wheel",
+  challengePrefix: 'Your dare:',
+  spinAgainButton: 'Spin Again',
+  getDirectionsButton: 'Get Directions',
+  guiltTripBuyButton: 'Buy a Pint (€5)',
+  guiltTripDismissButton: "I'm just a cheapskate",
 
   loadingMessages: [
     "Hold on now, finding somewhere with a bit of life...",

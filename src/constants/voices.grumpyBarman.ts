@@ -15,6 +15,11 @@ import type { Voice } from '@/types/pub';
  */
 export const grumpyBarmanVoice: Voice = {
   spinButton: 'Get on with it',
+  challengePrefix: "The barman's orders:",
+  spinAgainButton: 'Spin Again',
+  getDirectionsButton: 'Get Directions',
+  guiltTripBuyButton: 'Buy a Pint (€5)',
+  guiltTripDismissButton: "I'm just a cheapskate",
 
   loadingMessages: [
     "Aye. Hold on.",

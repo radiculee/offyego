@@ -5,10 +5,13 @@ import { AgeGate } from '@/components/gates/AgeGate';
 import { IrelandGate } from '@/components/gates/IrelandGate';
 import { LocationGate } from '@/components/gates/LocationGate';
 import { Shell } from '@/components/layout/Shell';
+import { GuiltTripModal } from '@/components/modals/GuiltTripModal';
+import { PubCard } from '@/components/roulette/PubCard';
 import { Roulette } from '@/components/roulette/Roulette';
 import { RadiusSlider } from '@/components/ui/RadiusSlider';
 import { SpinButton } from '@/components/ui/SpinButton';
-import { RADIUS_DEFAULT_KM } from '@/constants/config';
+import { CHALLENGES } from '@/constants/challenges';
+import { RADIUS_DEFAULT_KM, REVOLUT_URL } from '@/constants/config';
 import {
   useGeolocation,
   type GeolocationCoords,
@@ -41,6 +44,7 @@ type State =
       coords: GeolocationCoords;
       pubs: readonly Pub[];
       pickedPub: Pub;
+      challengeIndex: number;
     };
 
 type Action =
@@ -51,7 +55,8 @@ type Action =
   | { type: 'START_SPIN'; radiusM: number }
   | { type: 'SPIN_FETCH_SUCCESS'; pubs: readonly Pub[]; messageIndex: number }
   | { type: 'SPIN_FETCH_ERROR'; messageIndex: number }
-  | { type: 'SPIN_SETTLED'; pickedPub: Pub }
+  | { type: 'SPIN_SETTLED'; pickedPub: Pub; challengeIndex: number }
+  | { type: 'SPIN_AGAIN'; radiusM: number }
   | { type: 'BACK_TO_READY' };
 
 function reducer(state: State, action: Action): State {
@@ -81,14 +86,17 @@ function reducer(state: State, action: Action): State {
       return { kind: 'NO_PUBS_FOUND', coords: state.coords, reason: 'ERROR', messageIndex: action.messageIndex };
     case 'SPIN_SETTLED':
       if (state.kind !== 'SPINNING' || !state.pubs) return state;
-      // Phase 3 wiring: RESULT.pubs is retained so "Spin Again" can re-roll
-      // from cache without re-hitting Overpass (spec section 7.3).
       return {
         kind: 'RESULT',
         coords: state.coords,
         pubs: state.pubs,
         pickedPub: action.pickedPub,
+        challengeIndex: action.challengeIndex,
       };
+    case 'SPIN_AGAIN':
+      if (state.kind !== 'RESULT') return state;
+      // Re-use cached pubs — no Overpass re-fetch (fetch effect skips when pubs defined).
+      return { kind: 'SPINNING', coords: state.coords, radiusM: action.radiusM, pubs: state.pubs };
     case 'BACK_TO_READY':
       if (state.kind !== 'RESULT' && state.kind !== 'NO_PUBS_FOUND') return state;
       return { kind: 'READY', coords: state.coords };
@@ -106,8 +114,13 @@ export default function Page() {
   const [state, dispatch] = useReducer(reducer, { kind: 'AGE_GATE' });
   const { state: geoState, request: requestLocation } = useGeolocation();
   const { voice } = usePersonality();
-  const { increment: incrementSpinCount } = useSpinCount();
+  const {
+    increment: incrementSpinCount,
+    reset: resetSpinCount,
+    shouldShowGuiltTrip,
+  } = useSpinCount();
   const [radiusKm, setRadiusKm] = useState<number>(RADIUS_DEFAULT_KM);
+  const [guiltModalOpen, setGuiltModalOpen] = useState(false);
 
   useEffect(() => {
     if (state.kind === 'REQUESTING_LOCATION' && geoState.status === 'idle') {
@@ -149,10 +162,39 @@ export default function Page() {
     };
   }, [state, voice]);
 
+  useEffect(() => {
+    if (shouldShowGuiltTrip && state.kind === 'RESULT') {
+      setGuiltModalOpen(true);
+    }
+  }, [shouldShowGuiltTrip, state.kind]);
+
   const handleSpin = () => {
     if (state.kind !== 'READY') return;
     incrementSpinCount();
     dispatch({ type: 'START_SPIN', radiusM: Math.round(radiusKm * 1000) });
+  };
+
+  const handleSpinAgain = () => {
+    if (state.kind !== 'RESULT') return;
+    setGuiltModalOpen(false);
+    incrementSpinCount();
+    dispatch({ type: 'SPIN_AGAIN', radiusM: Math.round(radiusKm * 1000) });
+  };
+
+  const handleGetDirections = () => {
+    if (state.kind !== 'RESULT') return;
+    resetSpinCount();
+    setGuiltModalOpen(false);
+    window.open(
+      `https://www.google.com/maps/dir/?api=1&destination=${state.pickedPub.lat},${state.pickedPub.lng}`,
+      '_blank',
+      'noopener,noreferrer',
+    );
+  };
+
+  const handleBuyPint = () => {
+    setGuiltModalOpen(false);
+    window.open(REVOLUT_URL, '_blank', 'noopener,noreferrer');
   };
 
   return (
@@ -200,9 +242,10 @@ export default function Page() {
           ) : (
             <Roulette
               pubs={state.pubs}
-              onSettled={(pickedPub) =>
-                dispatch({ type: 'SPIN_SETTLED', pickedPub })
-              }
+              onSettled={(pickedPub) => {
+                const challengeIndex = Math.floor(Math.random() * CHALLENGES.length);
+                dispatch({ type: 'SPIN_SETTLED', pickedPub, challengeIndex });
+              }}
             />
           )}
         </div>
@@ -222,15 +265,24 @@ export default function Page() {
       )}
 
       {state.kind === 'RESULT' && (
-        <div>
-          <p>
-            Picked: {state.pickedPub.name} ({state.pickedPub.walkingMinutes} min
-            walk)
-          </p>
-          <button type="button" onClick={() => dispatch({ type: 'BACK_TO_READY' })}>
-            Back
-          </button>
-        </div>
+        <>
+          <PubCard
+            pub={state.pickedPub}
+            challenge={CHALLENGES[state.challengeIndex % CHALLENGES.length] ?? ''}
+            challengePrefix={voice.challengePrefix}
+            spinAgainLabel={voice.spinAgainButton}
+            getDirectionsLabel={voice.getDirectionsButton}
+            onGetDirections={handleGetDirections}
+            onSpinAgain={handleSpinAgain}
+          />
+          {guiltModalOpen && (
+            <GuiltTripModal
+              voice={voice}
+              onClose={() => setGuiltModalOpen(false)}
+              onBuyPint={handleBuyPint}
+            />
+          )}
+        </>
       )}
     </Shell>
   );

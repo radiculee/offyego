@@ -11,6 +11,11 @@ export type Personality = 'GRUMPY_BARMAN' | 'LOCAL_LAD';
 
 export type Voice = {
   spinButton: string;
+  challengePrefix: string;
+  spinAgainButton: string;
+  getDirectionsButton: string;
+  guiltTripBuyButton: string;
+  guiltTripDismissButton: string;
   loadingMessages: string[];
   noPubsFoundMessages: string[];
   resultIntros: string[];
