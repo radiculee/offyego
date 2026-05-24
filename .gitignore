@@ -46,3 +46,6 @@ next-env.d.ts
 
 # Binary documents (receipts, PDFs, screenshots)
 *.pdf
+
+.vercel
+.env*
