@@ -19,7 +19,8 @@ const irelandPolygon = polygon([
     [-10.0, 51.4], // Mizen Head (SW tip)
     [-8.5, 51.4], // Cork coast
     [-6.4, 51.95], // Wexford
-    [-6.2, 53.3], // Dublin coast
+    [-6.0, 52.85], // Wicklow coast
+    [-6.0, 53.45], // Dublin Bay (extended east to cover coastal mobile GPS)
     [-6.05, 54.0], // Carlingford (NI border, east)
     [-6.4, 54.2], // border south of Newry
     [-7.3, 54.25], // border (Monaghan/Fermanagh)
