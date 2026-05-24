@@ -1,29 +1,58 @@
 'use client';
 
-import { useEffect, useReducer } from 'react';
+import { useEffect, useReducer, useState } from 'react';
 import { AgeGate } from '@/components/gates/AgeGate';
 import { IrelandGate } from '@/components/gates/IrelandGate';
 import { LocationGate } from '@/components/gates/LocationGate';
 import { Shell } from '@/components/layout/Shell';
+import { Roulette } from '@/components/roulette/Roulette';
+import { RadiusSlider } from '@/components/ui/RadiusSlider';
+import { SpinButton } from '@/components/ui/SpinButton';
+import { RADIUS_DEFAULT_KM } from '@/constants/config';
 import {
   useGeolocation,
   type GeolocationCoords,
   type GeolocationError,
 } from '@/hooks/useGeolocation';
+import { usePersonality } from '@/hooks/usePersonality';
+import { useSpinCount } from '@/hooks/useSpinCount';
 import { isInIreland } from '@/lib/ireland-polygon';
+import { logger } from '@/lib/logger';
+import { fetchPubs } from '@/lib/overpass';
+import type { Pub } from '@/types/pub';
+
+type NoPubsReason = 'EMPTY' | 'ERROR';
 
 type State =
   | { kind: 'AGE_GATE' }
   | { kind: 'REQUESTING_LOCATION' }
   | { kind: 'LOCATION_DENIED'; error: GeolocationError }
   | { kind: 'OUT_OF_IRELAND' }
-  | { kind: 'READY'; coords: GeolocationCoords };
+  | { kind: 'READY'; coords: GeolocationCoords }
+  | {
+      kind: 'SPINNING';
+      coords: GeolocationCoords;
+      radiusM: number;
+      pubs?: readonly Pub[];
+    }
+  | { kind: 'NO_PUBS_FOUND'; coords: GeolocationCoords; reason: NoPubsReason; messageIndex: number }
+  | {
+      kind: 'RESULT';
+      coords: GeolocationCoords;
+      pubs: readonly Pub[];
+      pickedPub: Pub;
+    };
 
 type Action =
   | { type: 'ACCEPT_AGE' }
   | { type: 'LOCATION_ERROR'; error: GeolocationError }
   | { type: 'LOCATION_SUCCESS'; coords: GeolocationCoords }
-  | { type: 'RETRY_LOCATION' };
+  | { type: 'RETRY_LOCATION' }
+  | { type: 'START_SPIN'; radiusM: number }
+  | { type: 'SPIN_FETCH_SUCCESS'; pubs: readonly Pub[]; messageIndex: number }
+  | { type: 'SPIN_FETCH_ERROR'; messageIndex: number }
+  | { type: 'SPIN_SETTLED'; pickedPub: Pub }
+  | { type: 'BACK_TO_READY' };
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
@@ -38,14 +67,47 @@ function reducer(state: State, action: Action): State {
       return { kind: 'READY', coords: action.coords };
     case 'RETRY_LOCATION':
       return { kind: 'REQUESTING_LOCATION' };
+    case 'START_SPIN':
+      if (state.kind !== 'READY') return state;
+      return { kind: 'SPINNING', coords: state.coords, radiusM: action.radiusM };
+    case 'SPIN_FETCH_SUCCESS':
+      if (state.kind !== 'SPINNING') return state;
+      if (action.pubs.length === 0) {
+        return { kind: 'NO_PUBS_FOUND', coords: state.coords, reason: 'EMPTY', messageIndex: action.messageIndex };
+      }
+      return { ...state, pubs: action.pubs };
+    case 'SPIN_FETCH_ERROR':
+      if (state.kind !== 'SPINNING') return state;
+      return { kind: 'NO_PUBS_FOUND', coords: state.coords, reason: 'ERROR', messageIndex: action.messageIndex };
+    case 'SPIN_SETTLED':
+      if (state.kind !== 'SPINNING' || !state.pubs) return state;
+      // Phase 3 wiring: RESULT.pubs is retained so "Spin Again" can re-roll
+      // from cache without re-hitting Overpass (spec section 7.3).
+      return {
+        kind: 'RESULT',
+        coords: state.coords,
+        pubs: state.pubs,
+        pickedPub: action.pickedPub,
+      };
+    case 'BACK_TO_READY':
+      if (state.kind !== 'RESULT' && state.kind !== 'NO_PUBS_FOUND') return state;
+      return { kind: 'READY', coords: state.coords };
     default:
       return state;
   }
 }
 
+// TODO(phase-4): replace with useVoiceMessage() hook
+function pickRandom<T>(arr: readonly T[]): T {
+  return arr[Math.floor(Math.random() * arr.length)] as T;
+}
+
 export default function Page() {
   const [state, dispatch] = useReducer(reducer, { kind: 'AGE_GATE' });
   const { state: geoState, request: requestLocation } = useGeolocation();
+  const { voice } = usePersonality();
+  const { increment: incrementSpinCount } = useSpinCount();
+  const [radiusKm, setRadiusKm] = useState<number>(RADIUS_DEFAULT_KM);
 
   useEffect(() => {
     if (state.kind === 'REQUESTING_LOCATION' && geoState.status === 'idle') {
@@ -60,6 +122,38 @@ export default function Page() {
       dispatch({ type: 'LOCATION_ERROR', error: geoState.error });
     }
   }, [geoState]);
+
+  // Overpass fetch fires whenever SPINNING is entered without pubs.
+  useEffect(() => {
+    if (state.kind !== 'SPINNING' || state.pubs !== undefined) return;
+    let cancelled = false;
+    const { lat, lng } = state.coords;
+    const radiusM = state.radiusM;
+    const noPubsPoolLen = voice.noPubsFoundMessages.length;
+    const errorPoolLen = voice.overpassErrorMessages.length;
+    (async () => {
+      try {
+        const pubs = await fetchPubs({ lat, lng, radiusM });
+        if (cancelled) return;
+        const messageIndex = Math.floor(Math.random() * noPubsPoolLen);
+        dispatch({ type: 'SPIN_FETCH_SUCCESS', pubs, messageIndex });
+      } catch (err) {
+        if (cancelled) return;
+        logger.error('Overpass fetch failed (both mirrors):', err);
+        const messageIndex = Math.floor(Math.random() * errorPoolLen);
+        dispatch({ type: 'SPIN_FETCH_ERROR', messageIndex });
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [state, voice]);
+
+  const handleSpin = () => {
+    if (state.kind !== 'READY') return;
+    incrementSpinCount();
+    dispatch({ type: 'START_SPIN', radiusM: Math.round(radiusKm * 1000) });
+  };
 
   return (
     <Shell>
@@ -88,10 +182,54 @@ export default function Page() {
 
       {state.kind === 'READY' && (
         <div>
-          <p>READY (placeholder)</p>
+          <RadiusSlider value={radiusKm} onChange={setRadiusKm} />
+          <SpinButton label={voice.spinButton} onClick={handleSpin} />
+        </div>
+      )}
+
+      {state.kind === 'SPINNING' && (
+        <div>
+          <RadiusSlider value={radiusKm} onChange={setRadiusKm} disabled />
+          {state.pubs === undefined ? (
+            <SpinButton
+              label={voice.spinButton}
+              onClick={() => {}}
+              loading
+              disabled
+            />
+          ) : (
+            <Roulette
+              pubs={state.pubs}
+              onSettled={(pickedPub) =>
+                dispatch({ type: 'SPIN_SETTLED', pickedPub })
+              }
+            />
+          )}
+        </div>
+      )}
+
+      {state.kind === 'NO_PUBS_FOUND' && (
+        <div>
           <p>
-            Coords: {state.coords.lat.toFixed(4)}, {state.coords.lng.toFixed(4)}
+            {state.reason === 'EMPTY'
+              ? voice.noPubsFoundMessages[state.messageIndex % voice.noPubsFoundMessages.length]
+              : voice.overpassErrorMessages[state.messageIndex % voice.overpassErrorMessages.length]}
           </p>
+          <button type="button" onClick={() => dispatch({ type: 'BACK_TO_READY' })}>
+            Widen the search
+          </button>
+        </div>
+      )}
+
+      {state.kind === 'RESULT' && (
+        <div>
+          <p>
+            Picked: {state.pickedPub.name} ({state.pickedPub.walkingMinutes} min
+            walk)
+          </p>
+          <button type="button" onClick={() => dispatch({ type: 'BACK_TO_READY' })}>
+            Back
+          </button>
         </div>
       )}
     </Shell>
