@@ -93,4 +93,11 @@ export const grumpyBarmanVoice: Voice = {
     "I'm not a mind reader. Enable location.",
     "No location. No service. There's the door.",
   ],
+
+  // Phase 5: expand to 10 variants.
+  overpassErrorMessages: [
+    "The map server's down. Not my problem. Try in a bit.",
+    "Overpass is asleep. So am I. Try later.",
+    "Data's offline. The pubs are still there, but I can't see them.",
+  ],
 };

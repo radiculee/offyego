@@ -17,4 +17,5 @@ export type Voice = {
   guiltTripMessages: string[];
   outOfIrelandMessages: string[];
   locationDeniedMessages: string[];
+  overpassErrorMessages: string[];
 };

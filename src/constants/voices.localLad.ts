@@ -94,4 +94,11 @@ export const localLadVoice: Voice = {
     "Turn on location, lad. I promise I'm not selling it. Probably.",
     "Yer location's off. So is the spin button. Enable and we're back in business.",
   ],
+
+  // Phase 5: expand to 10 variants.
+  overpassErrorMessages: [
+    "Ah lad, the map's having a moment. Give it a minute.",
+    "Server's gone for a pint itself. Try again in a sec.",
+    "The internet's broken. Not yer fault. Probably.",
+  ],
 };
