@@ -17,9 +17,13 @@ export type Voice = {
   /** Age gate body. Identical across personalities — spec §6.1 mandates
    *  the same legal-ish copy regardless of voice. */
   ageGateBody: string;
-  /** Age gate accept button. Identical across personalities (see
-   *  ageGateBody). */
-  ageGateButton: string;
+  /** Age gate "I'm 18+" button. Identical across personalities (see
+   *  ageGateBody). Universal copy is non-negotiable here: visual
+   *  weighting on a safety gate must not vary by personality. */
+  ageGateButtonAccept: string;
+  /** Age gate "I'm under 18" button. Identical across personalities.
+   *  Clicking redirects to drinkaware.ie. */
+  ageGateButtonDecline: string;
   spinButton: string;
   challengePrefix: string;
   spinAgainButton: string;

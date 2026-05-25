@@ -16,6 +16,7 @@ export const OVERPASS_MIRRORS: string[] = [
 ];
 
 export const REVOLUT_URL = 'https://revolut.me/vedant9ipt';
+export const DRINKAWARE_URL = 'https://www.drinkaware.ie';
 
 export const GEOLOCATION_OPTIONS: PositionOptions = {
   enableHighAccuracy: true,

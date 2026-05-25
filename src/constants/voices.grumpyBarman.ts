@@ -17,7 +17,8 @@ export const grumpyBarmanVoice: Voice = {
   brandMark: 'Off Ye Go',
   ageGateBody:
     'This app is for people over 18 with a sense of humour. If neither applies, the door is behind you.',
-  ageGateButton: "I'm 18+ and not easily offended",
+  ageGateButtonAccept: "I'm 18+",
+  ageGateButtonDecline: "I'm under 18",
   spinButton: 'Get on with it',
   challengePrefix: "The barman's orders:",
   spinAgainButton: 'Spin Again',

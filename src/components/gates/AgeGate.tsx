@@ -1,5 +1,6 @@
 'use client';
 
+import { DRINKAWARE_URL } from '@/constants/config';
 import type { Voice } from '@/types/pub';
 
 type Props = {
@@ -7,20 +8,34 @@ type Props = {
   onAccept: () => void;
 };
 
+const SECONDARY_BUTTON =
+  'border-border-strong text-fg-primary hover:bg-bg-elevated rounded-md border bg-transparent py-3 text-base font-medium transition-colors duration-150 ease-out';
+
 export function AgeGate({ voice, onAccept }: Props) {
   return (
     <div className="flex flex-1 flex-col items-center justify-center text-center">
-      <div className="w-full max-w-xs space-y-5">
+      <div className="w-full max-w-sm space-y-5">
         <p className="text-fg-primary text-base leading-relaxed">
           {voice.ageGateBody}
         </p>
-        <button
-          type="button"
-          onClick={onAccept}
-          className="bg-fg-accent text-bg-page w-full rounded-md py-4 text-base font-medium transition-[opacity,transform] duration-150 ease-out hover:opacity-90 active:scale-[0.98]"
-        >
-          {voice.ageGateButton}
-        </button>
+        <div className="grid grid-cols-2 gap-3">
+          <button
+            type="button"
+            aria-label="I am 18 or older, enter the app"
+            onClick={onAccept}
+            className={SECONDARY_BUTTON}
+          >
+            {voice.ageGateButtonAccept}
+          </button>
+          <button
+            type="button"
+            aria-label="I am under 18, redirect to Drinkaware"
+            onClick={() => window.location.assign(DRINKAWARE_URL)}
+            className={SECONDARY_BUTTON}
+          >
+            {voice.ageGateButtonDecline}
+          </button>
+        </div>
       </div>
     </div>
   );
