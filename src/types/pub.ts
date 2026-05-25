@@ -17,6 +17,7 @@ export type Voice = {
   guiltTripBuyButton: string;
   guiltTripDismissButton: string;
   loadingMessages: string[];
+  noPubsFoundButton: string;
   noPubsFoundMessages: string[];
   resultIntros: string[];
   guiltTripMessages: string[];

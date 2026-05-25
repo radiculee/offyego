@@ -35,6 +35,8 @@ export const localLadVoice: Voice = {
     "Sorting the wheat from the chaff. Mostly chaff to be fair.",
   ],
 
+  noPubsFoundButton: 'Try a wider net',
+
   noPubsFoundMessages: [
     "Ah here, nothing 'round here? Stretch that radius, lad.",
     "Not a sausage. Try widening the search, ya melt.",

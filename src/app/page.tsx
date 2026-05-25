@@ -259,7 +259,7 @@ export default function Page() {
               : voice.overpassErrorMessages[state.messageIndex % voice.overpassErrorMessages.length]}
           </p>
           <button type="button" onClick={() => dispatch({ type: 'BACK_TO_READY' })}>
-            Widen the search
+            {voice.noPubsFoundButton}
           </button>
         </div>
       )}

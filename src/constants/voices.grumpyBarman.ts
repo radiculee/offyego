@@ -34,6 +34,8 @@ export const grumpyBarmanVoice: Voice = {
     "Working on it. Try sitting down.",
   ],
 
+  noPubsFoundButton: 'Widen the search',
+
   noPubsFoundMessages: [
     "Nothing. Try a bigger circle. Or move.",
     "No pubs. You're either in a field or a graveyard.",
