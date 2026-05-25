@@ -17,6 +17,17 @@ export function usePersonality() {
     if (stored !== null) setPersonalityState(stored);
   }, []);
 
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    const root = document.documentElement;
+    const next =
+      personality === 'LOCAL_LAD' ? 'theme-local-lad' : 'theme-grumpy-barman';
+    const other =
+      personality === 'LOCAL_LAD' ? 'theme-grumpy-barman' : 'theme-local-lad';
+    root.classList.remove(other);
+    root.classList.add(next);
+  }, [personality]);
+
   const setPersonality = useCallback((next: Personality) => {
     setPersonalityState(next);
     storage.set('personality', next);

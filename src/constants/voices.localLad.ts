@@ -27,7 +27,7 @@ export const localLadVoice: Voice = {
   guiltTripDismissButton: "I'm just a cheapskate",
   locationRequestingMessage: "Hold on lad, askin' yer phone where ya are.",
   locationRetryButton: 'Give it another bash',
-  radiusSliderLabel: 'Find me a pub within {value}km, lad',
+  radiusSliderLabel: 'Find me a pub within {value}, lad',
 
   loadingMessages: [
     "Hold on now, finding somewhere with a bit of life...",

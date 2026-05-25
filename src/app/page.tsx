@@ -8,6 +8,7 @@ import { Shell } from '@/components/layout/Shell';
 import { GuiltTripModal } from '@/components/modals/GuiltTripModal';
 import { PubCard } from '@/components/roulette/PubCard';
 import { Roulette } from '@/components/roulette/Roulette';
+import { PersonalityToggle } from '@/components/ui/PersonalityToggle';
 import { RadiusSlider } from '@/components/ui/RadiusSlider';
 import { SpinButton } from '@/components/ui/SpinButton';
 import { CHALLENGES } from '@/constants/challenges';
@@ -228,6 +229,7 @@ export default function Page() {
 
       {state.kind === 'READY' && (
         <div>
+          <PersonalityToggle />
           <RadiusSlider voice={voice} value={radiusKm} onChange={setRadiusKm} />
           <SpinButton label={voice.spinButton} onClick={handleSpin} />
         </div>

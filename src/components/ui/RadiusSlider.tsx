@@ -14,16 +14,30 @@ type Props = {
   disabled?: boolean;
 };
 
+const TOKEN = '{value}';
+
 export function RadiusSlider({
   voice,
   value,
   onChange,
   disabled = false,
 }: Props) {
-  const label = voice.radiusSliderLabel.replace('{value}', value.toString());
+  const template = voice.radiusSliderLabel;
+  const idx = template.indexOf(TOKEN);
+  const labelContent =
+    idx === -1 ? (
+      template
+    ) : (
+      <>
+        {template.slice(0, idx)}
+        <strong>{value}km</strong>
+        {template.slice(idx + TOKEN.length)}
+      </>
+    );
+
   return (
     <div>
-      <label htmlFor="radius-slider">{label}</label>
+      <label htmlFor="radius-slider">{labelContent}</label>
       <input
         id="radius-slider"
         type="range"
