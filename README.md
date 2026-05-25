@@ -1,36 +1,34 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Off Ye Go
 
-## Getting Started
+Can't pick a pub? Off ye go. We'll pick one for you.
 
-First, run the development server:
+## What it does
+
+Dublin has over 700 pubs. The island has over 7,000. None of that helps when you're standing on a footpath at six on a Friday and someone asks where you want to go.
+
+Off Ye Go picks one for you, at random, within walking distance of where you're standing. You get the name, a walking time, a map, and a small dare to do once you arrive. The app talks to you in one of two Irish voices, neither of which is impressed with you. Republic of Ireland only, by design.
+
+## Status
+
+In active development. Targeted launch on offyego.ie when ready.
+
+## Stack
+
+Built on Next.js 16 with React 19 and the App Router, written in TypeScript with strict mode on, styled with Tailwind v4, tested with Vitest. The map is Leaflet on top of OpenStreetMap tiles, so there's no Google Maps key, no quota, no billing setup. Pub data comes from the Overpass API against OpenStreetMap. Hosted on Vercel. No backend. No database. No accounts. Just a button and a pub.
+
+## Running it locally
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Then open http://localhost:3000. Browser geolocation requires HTTPS in production, so you'll need to allow location on localhost for development.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Contributing
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+PRs welcome. The project has a strong opinionated voice, so please read MASTER_PROMPT.md before opening one. No em-dashes in user-facing copy. No emoji in UI. If you're adding a challenge or voice variant, follow the existing tone.
 
-## Learn More
+## Licence
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT. See LICENSE.
