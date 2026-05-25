@@ -12,7 +12,7 @@ import { PersonalityToggle } from '@/components/ui/PersonalityToggle';
 import { RadiusSlider } from '@/components/ui/RadiusSlider';
 import { SpinButton } from '@/components/ui/SpinButton';
 import { CHALLENGES } from '@/constants/challenges';
-import { RADIUS_DEFAULT_KM, REVOLUT_URL } from '@/constants/config';
+import { RADIUS_DEFAULT_KM } from '@/constants/config';
 import {
   useGeolocation,
   type GeolocationCoords,
@@ -104,11 +104,6 @@ function reducer(state: State, action: Action): State {
     default:
       return state;
   }
-}
-
-// TODO(phase-4): replace with useVoiceMessage() hook
-function pickRandom<T>(arr: readonly T[]): T {
-  return arr[Math.floor(Math.random() * arr.length)] as T;
 }
 
 export default function Page() {
