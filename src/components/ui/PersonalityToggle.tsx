@@ -15,19 +15,20 @@ export function PersonalityToggle() {
     <div
       role="group"
       aria-label="Personality"
-      className="bg-bg-surface flex gap-2 p-1"
+      className="inline-flex gap-2"
     >
       {OPTIONS.map((opt) => {
         const active = personality === opt.value;
+        const stateClasses = active
+          ? 'bg-bg-elevated border-border-strong text-fg-primary'
+          : 'bg-transparent border-border-subtle text-fg-muted';
         return (
           <button
             key={opt.value}
             type="button"
             aria-pressed={active}
             onClick={() => setPersonality(opt.value)}
-            className={`text-fg-primary font-body flex-1 px-3 py-2 ${
-              active ? 'border-border-strong border' : 'border-border-subtle border'
-            }`}
+            className={`rounded-md border px-4 py-2 text-sm font-medium transition-[background-color,border-color,color] duration-150 ease-out ${stateClasses}`}
           >
             {opt.label}
           </button>

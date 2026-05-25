@@ -27,10 +27,6 @@ function poolFor(voice: Voice, error: GeolocationError): readonly string[] {
 export function LocationGate(props: Props) {
   const { voice } = props;
 
-  // Pick a random error message once on mount. Hook must run before any
-  // conditional return. State machine remounts this component on each new
-  // error entry (REQUESTING_LOCATION ↔ LOCATION_DENIED branches), so a fresh
-  // pick is guaranteed per error.
   const [errorMessage] = useState(() => {
     if (props.status !== 'error') return '';
     const pool = poolFor(voice, props.error);
@@ -38,15 +34,29 @@ export function LocationGate(props: Props) {
   });
 
   if (props.status === 'requesting') {
-    return <p>{voice.locationRequestingMessage}</p>;
+    return (
+      <div className="flex flex-1 flex-col items-center justify-center text-center">
+        <p className="text-fg-primary max-w-xs text-base leading-relaxed">
+          {voice.locationRequestingMessage}
+        </p>
+      </div>
+    );
   }
 
   return (
-    <div>
-      <p>{errorMessage}</p>
-      <button type="button" onClick={props.onRetry}>
-        {voice.locationRetryButton}
-      </button>
+    <div className="flex flex-1 flex-col items-center justify-center text-center">
+      <div className="w-full max-w-xs space-y-5">
+        <p className="text-fg-primary text-base leading-relaxed">
+          {errorMessage}
+        </p>
+        <button
+          type="button"
+          onClick={props.onRetry}
+          className="border-border-strong text-fg-primary hover:bg-bg-elevated w-full rounded-md border bg-transparent py-4 text-base font-medium transition-colors duration-150 ease-out"
+        >
+          {voice.locationRetryButton}
+        </button>
+      </div>
     </div>
   );
 }

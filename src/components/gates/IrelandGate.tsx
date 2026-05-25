@@ -16,8 +16,10 @@ export function IrelandGate({ voice }: Props) {
   );
 
   return (
-    <div>
-      <p>{message}</p>
+    <div className="flex flex-1 flex-col items-center justify-center text-center">
+      <p className="text-fg-primary max-w-xs text-base leading-relaxed">
+        {message}
+      </p>
     </div>
   );
 }

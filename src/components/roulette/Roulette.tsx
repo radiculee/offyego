@@ -81,5 +81,12 @@ export function Roulette({ pubs, onSettled }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally run once per mount; pubs is stable while SPINNING
   }, []);
 
-  return <div aria-live="polite">{displayName}</div>;
+  return (
+    <div
+      aria-live="polite"
+      className="text-fg-primary py-8 text-center text-2xl font-semibold"
+    >
+      {displayName}
+    </div>
+  );
 }

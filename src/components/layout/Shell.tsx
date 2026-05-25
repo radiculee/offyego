@@ -6,7 +6,7 @@ type Props = {
 
 export function Shell({ children }: Props) {
   return (
-    <div className="mx-auto flex min-h-dvh w-full max-w-[420px] flex-col px-4 py-6">
+    <div className="mx-auto flex min-h-dvh w-full max-w-[420px] flex-col gap-6 px-5 py-8">
       {children}
     </div>
   );

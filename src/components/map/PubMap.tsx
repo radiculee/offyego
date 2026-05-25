@@ -15,7 +15,7 @@ export default function PubMap({ lat, lng }: Props) {
       center={[lat, lng]}
       zoom={MAP_ZOOM}
       scrollWheelZoom={false}
-      style={{ height: '200px', width: '100%' }}
+      style={{ height: '100%', width: '100%' }}
     >
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

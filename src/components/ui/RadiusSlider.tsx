@@ -30,14 +30,19 @@ export function RadiusSlider({
     ) : (
       <>
         {template.slice(0, idx)}
-        <strong>{value}km</strong>
+        <strong className="font-semibold">{value}km</strong>
         {template.slice(idx + TOKEN.length)}
       </>
     );
 
   return (
-    <div>
-      <label htmlFor="radius-slider">{labelContent}</label>
+    <div className="space-y-2">
+      <label
+        htmlFor="radius-slider"
+        className="text-fg-primary block text-sm font-normal"
+      >
+        {labelContent}
+      </label>
       <input
         id="radius-slider"
         type="range"
@@ -50,6 +55,7 @@ export function RadiusSlider({
         aria-valuemin={RADIUS_MIN_KM}
         aria-valuemax={RADIUS_MAX_KM}
         aria-valuenow={value}
+        className="bg-border-subtle h-2 w-full appearance-none rounded-full disabled:cursor-not-allowed disabled:opacity-60"
       />
     </div>
   );

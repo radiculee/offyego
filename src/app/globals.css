@@ -36,15 +36,46 @@
 }
 
 html.theme-grumpy-barman {
-  /* Phase 4 Part 2: amber/wood palette overrides go here. */
+  /* Phase 4 Part 2b: amber/wood palette overrides go here. */
 }
 
 html.theme-local-lad {
-  /* Phase 4 Part 2: green/fireside palette overrides go here. */
+  /* Phase 4 Part 2b: green/fireside palette overrides go here. */
 }
 
 body {
   background: var(--bg-page);
   color: var(--fg-primary);
   font-family: var(--font-body);
+  font-feature-settings: "kern", "liga";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100dvh;
+}
+
+*:focus {
+  outline: none;
+}
+*:focus-visible {
+  outline: 2px solid var(--fg-accent);
+  outline-offset: 2px;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--fg-accent);
+  border: 2px solid var(--bg-page);
+  cursor: pointer;
+}
+input[type="range"]::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--fg-accent);
+  border: 2px solid var(--bg-page);
+  cursor: pointer;
 }

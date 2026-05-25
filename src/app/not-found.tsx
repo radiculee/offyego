@@ -13,8 +13,8 @@ export default function NotFound() {
   );
 
   return (
-    <main>
-      <h1>{message}</h1>
+    <main className="mx-auto flex min-h-dvh w-full max-w-[420px] flex-col items-center justify-center px-5 text-center">
+      <h1 className="text-fg-primary text-xl font-semibold">{message}</h1>
     </main>
   );
 }

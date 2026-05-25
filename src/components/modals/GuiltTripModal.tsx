@@ -13,7 +13,6 @@ type Props = {
 export function GuiltTripModal({ voice, onClose, onBuyPint }: Props) {
   const modalRef = useRef<HTMLDivElement>(null);
 
-  // Pick once on mount — stable across re-renders.
   const [message] = useState(
     () =>
       voice.guiltTripMessages[
@@ -58,35 +57,34 @@ export function GuiltTripModal({ voice, onClose, onBuyPint }: Props) {
   return (
     <div
       onClick={onClose}
-      style={{
-        position: 'fixed',
-        inset: 0,
-        background: 'rgba(0,0,0,0.75)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 50,
-      }}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-5 backdrop-blur-sm"
     >
       <div
         ref={modalRef}
         role="dialog"
         aria-modal="true"
         onClick={(e) => e.stopPropagation()}
-        style={{ background: '#fff', padding: '1.5rem', maxWidth: '360px', width: '90%' }}
+        className="bg-bg-surface border-border-strong mx-auto w-full max-w-sm space-y-5 rounded-lg border p-6"
       >
-        <p>{message}</p>
-        <a
-          href={REVOLUT_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={onBuyPint}
-        >
-          <button type="button">{voice.guiltTripBuyButton}</button>
-        </a>
-        <button type="button" onClick={onClose}>
-          {voice.guiltTripDismissButton}
-        </button>
+        <p className="text-fg-primary text-base leading-relaxed">{message}</p>
+        <div className="space-y-3">
+          <a
+            href={REVOLUT_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={onBuyPint}
+            className="bg-fg-accent text-bg-page block w-full rounded-md py-4 text-center text-base font-medium transition-[opacity,transform] duration-150 ease-out hover:opacity-90 active:scale-[0.98]"
+          >
+            {voice.guiltTripBuyButton}
+          </a>
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-fg-muted hover:text-fg-primary w-full bg-transparent py-2 text-sm font-medium underline-offset-4 transition-colors duration-150 ease-out hover:underline"
+          >
+            {voice.guiltTripDismissButton}
+          </button>
+        </div>
       </div>
     </div>
   );

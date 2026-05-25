@@ -194,13 +194,16 @@ export default function Page() {
   };
 
   const handleBuyPint = () => {
+    // The modal's primary action is a styled <a target="_blank"> that handles
+    // navigation; we just close the modal on click.
     setGuiltModalOpen(false);
-    window.open(REVOLUT_URL, '_blank', 'noopener,noreferrer');
   };
 
   return (
     <Shell>
-      <h1>{voice.brandMark}</h1>
+      <h1 className="font-display text-fg-primary text-3xl font-bold tracking-tight">
+        {voice.brandMark}
+      </h1>
 
       {state.kind === 'AGE_GATE' && (
         <AgeGate
@@ -228,7 +231,7 @@ export default function Page() {
       {state.kind === 'OUT_OF_IRELAND' && <IrelandGate voice={voice} />}
 
       {state.kind === 'READY' && (
-        <div>
+        <div className="space-y-6">
           <PersonalityToggle />
           <RadiusSlider voice={voice} value={radiusKm} onChange={setRadiusKm} />
           <SpinButton label={voice.spinButton} onClick={handleSpin} />
@@ -236,7 +239,7 @@ export default function Page() {
       )}
 
       {state.kind === 'SPINNING' && (
-        <div>
+        <div className="space-y-6">
           <RadiusSlider
             voice={voice}
             value={radiusKm}
@@ -263,15 +266,21 @@ export default function Page() {
       )}
 
       {state.kind === 'NO_PUBS_FOUND' && (
-        <div>
-          <p>
-            {state.reason === 'EMPTY'
-              ? voice.noPubsFoundMessages[state.messageIndex % voice.noPubsFoundMessages.length]
-              : voice.overpassErrorMessages[state.messageIndex % voice.overpassErrorMessages.length]}
-          </p>
-          <button type="button" onClick={() => dispatch({ type: 'BACK_TO_READY' })}>
-            {voice.noPubsFoundButton}
-          </button>
+        <div className="flex flex-1 flex-col items-center justify-center text-center">
+          <div className="w-full max-w-xs space-y-5">
+            <p className="text-fg-primary text-base leading-relaxed">
+              {state.reason === 'EMPTY'
+                ? voice.noPubsFoundMessages[state.messageIndex % voice.noPubsFoundMessages.length]
+                : voice.overpassErrorMessages[state.messageIndex % voice.overpassErrorMessages.length]}
+            </p>
+            <button
+              type="button"
+              onClick={() => dispatch({ type: 'BACK_TO_READY' })}
+              className="border-border-strong text-fg-primary hover:bg-bg-elevated w-full rounded-md border bg-transparent py-4 text-base font-medium transition-colors duration-150 ease-out"
+            >
+              {voice.noPubsFoundButton}
+            </button>
+          </div>
         </div>
       )}
 

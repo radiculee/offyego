@@ -23,9 +23,11 @@ export function SpinButton({
       disabled={isInactive}
       aria-busy={loading}
       aria-label={label}
-      style={{ width: '100%' }}
+      className="bg-fg-accent text-bg-page flex w-full items-center justify-center gap-2 rounded-md py-4 text-base font-medium transition-[opacity,transform] duration-150 ease-out hover:opacity-90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
     >
-      {loading ? <Loader2 className="animate-spin" aria-hidden="true" /> : null}
+      {loading ? (
+        <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
+      ) : null}
       <span>{label}</span>
     </button>
   );
