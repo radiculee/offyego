@@ -1,18 +1,18 @@
 'use client';
 
+import type { Voice } from '@/types/pub';
+
 type Props = {
+  voice: Voice;
   onAccept: () => void;
 };
 
-export function AgeGate({ onAccept }: Props) {
+export function AgeGate({ voice, onAccept }: Props) {
   return (
     <div>
-      <p>
-        This app is for people over 18 with a sense of humour. If neither
-        applies, the door&apos;s behind you.
-      </p>
+      <p>{voice.ageGateBody}</p>
       <button type="button" onClick={onAccept}>
-        I&apos;m 18+ and not easily offended
+        {voice.ageGateButton}
       </button>
     </div>
   );

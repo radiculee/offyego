@@ -199,20 +199,24 @@ export default function Page() {
 
   return (
     <Shell>
-      <h1>Off Ye Go</h1>
+      <h1>{voice.brandMark}</h1>
 
       {state.kind === 'AGE_GATE' && (
-        <AgeGate onAccept={() => dispatch({ type: 'ACCEPT_AGE' })} />
+        <AgeGate
+          voice={voice}
+          onAccept={() => dispatch({ type: 'ACCEPT_AGE' })}
+        />
       )}
 
       {state.kind === 'REQUESTING_LOCATION' && (
-        <LocationGate status="requesting" />
+        <LocationGate status="requesting" voice={voice} />
       )}
 
       {state.kind === 'LOCATION_DENIED' && (
         <LocationGate
           status="error"
           error={state.error}
+          voice={voice}
           onRetry={() => {
             dispatch({ type: 'RETRY_LOCATION' });
             void requestLocation();
@@ -220,18 +224,23 @@ export default function Page() {
         />
       )}
 
-      {state.kind === 'OUT_OF_IRELAND' && <IrelandGate />}
+      {state.kind === 'OUT_OF_IRELAND' && <IrelandGate voice={voice} />}
 
       {state.kind === 'READY' && (
         <div>
-          <RadiusSlider value={radiusKm} onChange={setRadiusKm} />
+          <RadiusSlider voice={voice} value={radiusKm} onChange={setRadiusKm} />
           <SpinButton label={voice.spinButton} onClick={handleSpin} />
         </div>
       )}
 
       {state.kind === 'SPINNING' && (
         <div>
-          <RadiusSlider value={radiusKm} onChange={setRadiusKm} disabled />
+          <RadiusSlider
+            voice={voice}
+            value={radiusKm}
+            onChange={setRadiusKm}
+            disabled
+          />
           {state.pubs === undefined ? (
             <SpinButton
               label={voice.spinButton}

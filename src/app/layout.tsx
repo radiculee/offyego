@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Off Ye Go — Can't pick a pub? We'll pick one.",
+  title: "Off Ye Go: Can't pick a pub? We'll pick one.",
   description:
     'A sarcastic pub randomiser for the Republic of Ireland. Hit spin, get a pub, get a dare, go drink.',
 };

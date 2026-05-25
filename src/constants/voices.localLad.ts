@@ -15,12 +15,19 @@ import type { Voice } from '@/types/pub';
  *   - He's positive about you. He's just a lot.
  */
 export const localLadVoice: Voice = {
+  brandMark: 'Off Ye Go',
+  ageGateBody:
+    'This app is for people over 18 with a sense of humour. If neither applies, the door is behind you.',
+  ageGateButton: "I'm 18+ and not easily offended",
   spinButton: "Spin the feckin' wheel",
   challengePrefix: 'Your dare:',
   spinAgainButton: 'Spin Again',
   getDirectionsButton: 'Get Directions',
   guiltTripBuyButton: 'Buy a Pint (€5)',
   guiltTripDismissButton: "I'm just a cheapskate",
+  locationRequestingMessage: "Hold on lad, askin' yer phone where ya are.",
+  locationRetryButton: 'Give it another bash',
+  radiusSliderLabel: 'Find me a pub within {value}km, lad',
 
   loadingMessages: [
     "Hold on now, finding somewhere with a bit of life...",
@@ -100,6 +107,24 @@ export const localLadVoice: Voice = {
     "Won't share yer location? Fair enough. We're done here.",
     "Turn on location, lad. I promise I'm not selling it. Probably.",
     "Yer location's off. So is the spin button. Enable and we're back in business.",
+  ],
+
+  locationTimeoutMessages: [
+    "Ah lad, yer phone took its sweet time. Try again.",
+    "Timed out on us. Tap it again, will ya.",
+    "Yer phone's gone for a wander. Give it another go.",
+  ],
+
+  locationUnavailableMessages: [
+    "GPS can't find ya, lad. Try standin' near a window.",
+    "Yer phone's lost. Aren't we all. Give it another bash.",
+    "No fix on yer location. Step outside and we'll try again.",
+  ],
+
+  notFoundMessages: [
+    "Ah here, wrong page lad. No pub down this road.",
+    "Yer lost! Head back to where ya came from.",
+    "Nothin' for ya here. Back to the start, lad.",
   ],
 
   // Phase 5: expand to 10 variants.

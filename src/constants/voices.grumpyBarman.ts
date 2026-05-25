@@ -14,12 +14,19 @@ import type { Voice } from '@/types/pub';
  *   - Dry, observational, occasionally bleak.
  */
 export const grumpyBarmanVoice: Voice = {
+  brandMark: 'Off Ye Go',
+  ageGateBody:
+    'This app is for people over 18 with a sense of humour. If neither applies, the door is behind you.',
+  ageGateButton: "I'm 18+ and not easily offended",
   spinButton: 'Get on with it',
   challengePrefix: "The barman's orders:",
   spinAgainButton: 'Spin Again',
   getDirectionsButton: 'Get Directions',
   guiltTripBuyButton: 'Buy a Pint (€5)',
   guiltTripDismissButton: "I'm just a cheapskate",
+  locationRequestingMessage: 'Looking. Hold on.',
+  locationRetryButton: 'Try again',
+  radiusSliderLabel: 'Within {value}km. Get on with it.',
 
   loadingMessages: [
     "Aye. Hold on.",
@@ -99,6 +106,24 @@ export const grumpyBarmanVoice: Voice = {
     "Permission denied. So is service. Fix it and try again.",
     "I'm not a mind reader. Enable location.",
     "No location. No service. There's the door.",
+  ],
+
+  locationTimeoutMessages: [
+    'Your phone took too long. Try again.',
+    'Timed out. Maybe stand near a window.',
+    'Took an age and got nothing. Try again.',
+  ],
+
+  locationUnavailableMessages: [
+    "Can't find you. Bad GPS, bad area, bad luck. Try again.",
+    'GPS has nothing for me. Step outside and retry.',
+    'No location data. The satellites are sulking. Try again.',
+  ],
+
+  notFoundMessages: [
+    'Wrong door. No pub here.',
+    "You're in the wrong place. Back the way you came.",
+    'Nothing on this page. Off ye go.',
   ],
 
   // Phase 5: expand to 10 variants.

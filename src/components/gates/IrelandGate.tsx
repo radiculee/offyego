@@ -1,10 +1,23 @@
 'use client';
 
-export function IrelandGate() {
+import { useState } from 'react';
+import type { Voice } from '@/types/pub';
+
+type Props = {
+  voice: Voice;
+};
+
+export function IrelandGate({ voice }: Props) {
+  const [message] = useState(
+    () =>
+      voice.outOfIrelandMessages[
+        Math.floor(Math.random() * voice.outOfIrelandMessages.length)
+      ] ?? '',
+  );
+
   return (
     <div>
-      <p>You&apos;re not in the Republic of Ireland.</p>
-      <p>No way around this. Come back when you&apos;re in.</p>
+      <p>{message}</p>
     </div>
   );
 }

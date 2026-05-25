@@ -5,19 +5,25 @@ import {
   RADIUS_MIN_KM,
   RADIUS_STEP_KM,
 } from '@/constants/config';
+import type { Voice } from '@/types/pub';
 
 type Props = {
+  voice: Voice;
   value: number;
   onChange: (value: number) => void;
   disabled?: boolean;
 };
 
-export function RadiusSlider({ value, onChange, disabled = false }: Props) {
+export function RadiusSlider({
+  voice,
+  value,
+  onChange,
+  disabled = false,
+}: Props) {
+  const label = voice.radiusSliderLabel.replace('{value}', value.toString());
   return (
     <div>
-      <label htmlFor="radius-slider">
-        Find me a pub within <strong>{value}km</strong>
-      </label>
+      <label htmlFor="radius-slider">{label}</label>
       <input
         id="radius-slider"
         type="range"

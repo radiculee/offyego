@@ -1,28 +1,51 @@
 'use client';
 
+import { useState } from 'react';
 import type { GeolocationError } from '@/hooks/useGeolocation';
+import type { Voice } from '@/types/pub';
 
 type Props =
-  | { status: 'requesting' }
-  | { status: 'error'; error: GeolocationError; onRetry: () => void };
+  | { status: 'requesting'; voice: Voice }
+  | {
+      status: 'error';
+      error: GeolocationError;
+      voice: Voice;
+      onRetry: () => void;
+    };
 
-const ERROR_COPY: Record<GeolocationError, string> = {
-  PERMISSION_DENIED:
-    "We can't pick a pub if you won't tell us where you are. Enable location and try again.",
-  TIMEOUT: 'Your phone is being shy. Try again.',
-  POSITION_UNAVAILABLE: 'GPS is having a moment. Try again in a sec.',
-};
+function poolFor(voice: Voice, error: GeolocationError): readonly string[] {
+  switch (error) {
+    case 'PERMISSION_DENIED':
+      return voice.locationDeniedMessages;
+    case 'TIMEOUT':
+      return voice.locationTimeoutMessages;
+    case 'POSITION_UNAVAILABLE':
+      return voice.locationUnavailableMessages;
+  }
+}
 
 export function LocationGate(props: Props) {
+  const { voice } = props;
+
+  // Pick a random error message once on mount. Hook must run before any
+  // conditional return. State machine remounts this component on each new
+  // error entry (REQUESTING_LOCATION ↔ LOCATION_DENIED branches), so a fresh
+  // pick is guaranteed per error.
+  const [errorMessage] = useState(() => {
+    if (props.status !== 'error') return '';
+    const pool = poolFor(voice, props.error);
+    return pool[Math.floor(Math.random() * pool.length)] ?? '';
+  });
+
   if (props.status === 'requesting') {
-    return <p>Asking your phone where you are...</p>;
+    return <p>{voice.locationRequestingMessage}</p>;
   }
 
   return (
     <div>
-      <p>{ERROR_COPY[props.error]}</p>
+      <p>{errorMessage}</p>
       <button type="button" onClick={props.onRetry}>
-        Try again
+        {voice.locationRetryButton}
       </button>
     </div>
   );
