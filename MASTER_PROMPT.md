@@ -351,8 +351,19 @@ const walkingMinutes = Math.max(5, Math.round((distanceKm / 5) * 60));
 ```
 (5 km/h pace, minimum 5 minutes — never show "1 min walk")
 
-### Fallback Overpass mirror
-The main `overpass-api.de` endpoint goes down semi-regularly. Implement a single retry against `https://overpass.kumi.systems/api/interpreter` if the primary fails or times out.
+### Overpass reliability strategy
+
+Overpass mirrors go down semi-regularly and unpredictably. Rather
+than waiting for a primary to fail before trying a fallback (which
+doubles worst-case latency), `fetchPubs` races both `overpass-api.de`
+and `overpass.kumi.systems` in parallel using `Promise.any()`. The
+first mirror to return a successful response wins; the other is
+ignored. If both fail, the rejection propagates to the caller and
+the state machine routes to `NO_PUBS_FOUND { reason: 'ERROR' }`.
+
+This is an intentional change from the originally-specified
+primary-then-retry pattern. Accepted by the architect in Phase 3
+close-out (see commit 3f3a685).
 
 ---
 
