@@ -1,12 +1,10 @@
 import {
   MAX_PUBS_IN_MEMORY,
-  OVERPASS_FALLBACK,
-  OVERPASS_PRIMARY,
+  OVERPASS_MIRRORS,
   OVERPASS_TIMEOUT_MS,
 } from '@/constants/config';
 import type { Pub } from '@/types/pub';
 import { haversineMeters, walkingMinutes } from './geo';
-import { logger } from './logger';
 
 type OverpassNode = {
   type: 'node';
@@ -58,19 +56,11 @@ export function parseOverpassResponse(
   return pubs.slice(0, MAX_PUBS_IN_MEMORY);
 }
 
-async function fetchFromEndpoint(endpoint: string, query: string): Promise<unknown> {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), OVERPASS_TIMEOUT_MS);
-  try {
-    const url = `${endpoint}?data=${encodeURIComponent(query)}`;
-    const response = await fetch(url, { signal: controller.signal });
-    if (!response.ok) {
-      throw new Error(`Overpass HTTP ${response.status}`);
-    }
-    return await response.json();
-  } finally {
-    clearTimeout(timer);
-  }
+async function fetchFromMirror(endpoint: string, query: string, signal: AbortSignal): Promise<unknown> {
+  const url = `${endpoint}?data=${encodeURIComponent(query)}`;
+  const response = await fetch(url, { signal });
+  if (!response.ok) throw new Error(`Overpass HTTP ${response.status}`);
+  return response.json();
 }
 
 export async function fetchPubs(params: {
@@ -80,12 +70,17 @@ export async function fetchPubs(params: {
 }): Promise<Pub[]> {
   const { lat, lng, radiusM } = params;
   const query = buildQuery(lat, lng, radiusM);
+  const controllers = OVERPASS_MIRRORS.map(() => new AbortController());
+  const timer = setTimeout(() => controllers.forEach(c => c.abort()), OVERPASS_TIMEOUT_MS);
   try {
-    const raw = await fetchFromEndpoint(OVERPASS_PRIMARY, query);
+    const raw = await Promise.any(
+      OVERPASS_MIRRORS.map((endpoint, i) =>
+        fetchFromMirror(endpoint, query, controllers[i]!.signal),
+      ),
+    );
     return parseOverpassResponse(raw, { lat, lng });
-  } catch (primaryErr) {
-    logger.warn('Overpass primary failed, retrying fallback:', primaryErr);
-    const raw = await fetchFromEndpoint(OVERPASS_FALLBACK, query);
-    return parseOverpassResponse(raw, { lat, lng });
+  } finally {
+    clearTimeout(timer);
+    controllers.forEach(c => c.abort());
   }
 }

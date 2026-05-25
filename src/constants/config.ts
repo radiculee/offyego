@@ -8,8 +8,12 @@ export const MAX_PUBS_IN_MEMORY = 50;
 export const MAP_ZOOM = 16;
 
 export const OVERPASS_TIMEOUT_MS = 10_000;
-export const OVERPASS_PRIMARY = 'https://overpass-api.de/api/interpreter';
-export const OVERPASS_FALLBACK = 'https://overpass.kumi.systems/api/interpreter';
+export const OVERPASS_MIRRORS: string[] = [
+  'https://overpass-api.de/api/interpreter',
+  'https://overpass.kumi.systems/api/interpreter',
+  'https://overpass.private.coffee/api/interpreter',
+  'https://overpass.openstreetmap.ru/api/interpreter',
+];
 
 export const REVOLUT_URL = 'https://revolut.me/vedant9ipt';
 
