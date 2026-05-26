@@ -25,7 +25,6 @@ export type Voice = {
    *  Clicking redirects to drinkaware.ie. */
   ageGateButtonDecline: string;
   spinButton: string;
-  challengePrefix: string;
   spinAgainButton: string;
   getDirectionsButton: string;
   guiltTripBuyButton: string;

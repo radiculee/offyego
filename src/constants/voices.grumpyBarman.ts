@@ -20,7 +20,6 @@ export const grumpyBarmanVoice: Voice = {
   ageGateButtonAccept: "I'm 18+",
   ageGateButtonDecline: "I'm under 18",
   spinButton: 'Get on with it',
-  challengePrefix: "The barman's orders:",
   spinAgainButton: 'Spin Again',
   getDirectionsButton: 'Get Directions',
   guiltTripBuyButton: 'Buy a Pint (€5)',

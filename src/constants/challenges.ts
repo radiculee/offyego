@@ -8,9 +8,6 @@
  *   - No abuse of staff. Tipping is fine. Mocking is not.
  *   - No driving-related dares.
  *   - Nothing eating-disorder or self-harm adjacent.
- *
- * The introducing line ("Your dare:", "The barman's orders:") comes from
- * the personality's voice file. Do not bake it into the challenge string.
  */
 export const CHALLENGES: readonly string[] = [
   // The Guinness category
@@ -31,8 +28,6 @@ export const CHALLENGES: readonly string[] = [
   // The seat selection
   "Sit at the bar. Tables are for cowards.",
   "Sit in the snug if there is one. Pretend you're allowed.",
-  "Sit at the table closest to the door. Leave whenever you want.",
-  "Sit at the table furthest from the door. Commit to the night.",
 
   // The order
   "Order a small one. Just to confuse them.",
@@ -47,14 +42,11 @@ export const CHALLENGES: readonly string[] = [
   "Find someone wearing a GAA jersey. Tell them their county is overrated. Run.",
   "Compliment the dog if there is one. Compliment the dog twice if not.",
   "Listen to one full conversation at the next table. Walk away with an opinion on it.",
-  "Spot the oldest person in the room. Wonder what stories they have. Don't ask.",
 
   // The pub itself
-  "Read every sign on the wall. Find one that's older than you.",
   "Find the photo of someone famous on the wall. Pretend you know them.",
   "Visit the bathroom. Rate it on a scale of 'grand' to 'never again'.",
   "Count the number of taps. Order the one with the dustiest handle.",
-  "Find the oldest piece of furniture in the pub. Sit on it.",
   "Inspect the fireplace. If there's no fire, demand answers.",
 
   // The traditions
@@ -62,19 +54,15 @@ export const CHALLENGES: readonly string[] = [
   "Buy a round for yourself. Toast no one in particular.",
   "Wait for someone to say 'sláinte'. If no one does, say it yourself, then sigh.",
   "Order a bag of Tayto for the table. Even if you're alone.",
-  "If there's a fire, sit by it. If there isn't, that's a sign.",
 
   // The chaotic
   "Make eye contact with the barman from the door. Hold it for too long.",
   "Take exactly six sips of your pint before saying anything. Build the suspense.",
   "Order a drink. Change your mind. Order the first one again.",
-  "Find the quietest corner. Make it yours for at least one drink.",
   "Walk in, scan the room slowly like an action hero, then go to the bar.",
 
   // The observation
   "Identify the type of pub it is in three words. Be brutal.",
-  "Note the music. If it's good, stay. If it's bad, stay anyway.",
-  "Count how many people are on their phones. Judge accordingly.",
   "Spot the tourist. Don't be the tourist.",
 
   // The commitment
@@ -82,5 +70,4 @@ export const CHALLENGES: readonly string[] = [
   "If you don't like it, finish the pint anyway. You wanted this.",
   "Drink at the pace of the slowest person near you. Patience is a virtue.",
   "Don't check your phone for the duration of your first drink. The world will wait.",
-  "Make a mental note of one thing you'll remember tomorrow. Just one.",
 ];

@@ -8,7 +8,6 @@ const PubMap = dynamic(() => import('@/components/map/PubMap'), { ssr: false });
 type Props = {
   pub: Pub;
   challenge: string;
-  challengePrefix: string;
   spinAgainLabel: string;
   getDirectionsLabel: string;
   onSpinAgain: () => void;
@@ -18,7 +17,6 @@ type Props = {
 export function PubCard({
   pub,
   challenge,
-  challengePrefix,
   spinAgainLabel,
   getDirectionsLabel,
   onSpinAgain,
@@ -34,7 +32,7 @@ export function PubCard({
         <PubMap lat={pub.lat} lng={pub.lng} />
       </div>
       <p className="text-fg-primary text-base italic">
-        {challengePrefix} {challenge}
+        {challenge}
       </p>
       <div className="grid grid-cols-2 gap-3">
         <button

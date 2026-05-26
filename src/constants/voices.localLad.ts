@@ -21,7 +21,6 @@ export const localLadVoice: Voice = {
   ageGateButtonAccept: "I'm 18+",
   ageGateButtonDecline: "I'm under 18",
   spinButton: "Spin the feckin' wheel",
-  challengePrefix: 'Your dare:',
   spinAgainButton: 'Spin Again',
   getDirectionsButton: 'Get Directions',
   guiltTripBuyButton: 'Buy a Pint (€5)',

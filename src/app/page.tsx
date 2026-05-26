@@ -284,7 +284,6 @@ export default function Page() {
           <PubCard
             pub={state.pickedPub}
             challenge={CHALLENGES[state.challengeIndex % CHALLENGES.length] ?? ''}
-            challengePrefix={voice.challengePrefix}
             spinAgainLabel={voice.spinAgainButton}
             getDirectionsLabel={voice.getDirectionsButton}
             onGetDirections={handleGetDirections}
