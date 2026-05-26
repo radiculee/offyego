@@ -5,7 +5,7 @@
 ## Read these in order before doing anything
 
 1. **MASTER_PROMPT.md** - full spec. Brand rules, the three gates, the
-   10-state machine, Overpass query, definition of done. If a decision
+   11-state machine, Overpass query, definition of done. If a decision
    isn't in here, stop and ask.
 2. **TIMELINE.md** - phased plan (0 through 6), Architect vs Builder
    split, per-phase done criteria.
@@ -21,15 +21,19 @@ write the code, he drives the agenda.
 
 ## Current state
 
-Nine commits in. Driven from `git log --oneline` and the src tree.
+Driven from `git log --oneline` and the src tree.
 
 | Phase | Status | What shipped |
 |---|---|---|
-| 0 | ✅ | `offyego.ie` registered, `offyego.com` defensive. GitHub repo exists (rename pending). Voice/challenge content drafted (60 strings/personality, 50 challenges) and now lives in `src/constants/`. |
-| 1 | ✅ | Scaffold (Next 16 + React 19 + TS strict + Tailwind v4 + Vitest), `lib/geo.ts`, `lib/ireland-polygon.ts` (15-pt placeholder), three gates, 5-state `useReducer` machine, `Shell` 420px layout, three hooks, typed storage, prod-safe logger. 14/14 polygon tests pass. Build clean. |
-| 2 | ✅ | Overpass integration, Roulette animation, RadiusSlider, SpinButton, extended state machine (SPINNING / NO_PUBS_FOUND / RESULT placeholder). 24/24 tests pass. Deployed to Vercel, real spin returns real Dublin pubs. |
-| 3 | ⏭ | NEXT. PubCard, GuiltTripModal, PubMap (Leaflet SSR-safe dynamic import), Spin Again, Get Directions. See TIMELINE.md "Phase 3". |
-| 4-6 | ⏭ | Not started. |
+| 0 | ✅ | `offyego.ie` registered, `offyego.com` defensive. GitHub repo exists (rename pending). Voice/challenge content drafted (60 strings/personality) and lives in `src/constants/`. |
+| 1 | ✅ | Scaffold (Next 16 + React 19 + TS strict + Tailwind v4 + Vitest), `lib/geo.ts`, `lib/ireland-polygon.ts` (15-pt placeholder), three gates, 5-state `useReducer` machine, `Shell` 420px layout, three hooks, typed storage, prod-safe logger. 14/14 polygon tests pass. |
+| 2 | ✅ | Overpass integration, Roulette animation, RadiusSlider, SpinButton, extended state machine. 24/24 tests pass. Deployed to Vercel. |
+| 3 | ✅ | PubCard, GuiltTripModal, PubMap (Leaflet SSR-safe), Spin Again, Get Directions. Full flow verified on desktop browser in Dublin. |
+| 4 Part 1 | ✅ | Voice files pasted, PersonalityToggle, usePersonality hook, all hardcoded strings removed. |
+| 4 Part 2a | ✅ | Theme-neutral layout + typography foundation, CSS variable system, hydration-safe personality switching, voice routing audit. Build clean. |
+| 4 Part 2 Prep | ✅ | Challenge prefix dropped, pool pruned to 41, Mapbox dark-v11 tiles, Mapbox Directions for walking time (FETCHING_WALKING_TIME state added). 33/33 tests pass. |
+| 4 Part 2b | ⏭ | NEXT. Palette trial commits (four trials on branches, final pick cherry-picked into main). |
+| 5-6 | ⏭ | Not started. |
 
 ## Non-negotiable rules (summary; full version in MASTER_PROMPT.md §2)
 
@@ -52,16 +56,16 @@ src/
 │   ├── globals.css                  🟡 scaffold default; brand theme is Phase 4
 │   ├── layout.tsx                   ✅ Off Ye Go metadata, lang="en-IE"
 │   ├── not-found.tsx                ✅ minimal sarcastic 404
-│   └── page.tsx                     ✅ useReducer machine, 8-state Phase-2 machine
+│   └── page.tsx                     ✅ useReducer machine, 11-state machine (adds FETCHING_WALKING_TIME)
 ├── components/
 │   ├── gates/                       ✅ AgeGate, IrelandGate, LocationGate
 │   ├── layout/                      ✅ Shell (420px column)
-│   ├── map/PubMap.tsx               🟡 stub (Phase 3)
-│   ├── modals/GuiltTripModal.tsx    🟡 stub (Phase 3)
-│   ├── roulette/                    ✅ Roulette (animation + reduced-motion), PubCard stub (Phase 3)
+│   ├── map/PubMap.tsx               ✅ Mapbox dark-v11 tiles via react-leaflet TileLayer
+│   ├── modals/GuiltTripModal.tsx    ✅ fires at spin 5
+│   ├── roulette/                    ✅ Roulette (animation + reduced-motion), PubCard
 │   └── ui/                          ✅ RadiusSlider, SpinButton. 🟡 PersonalityToggle (Phase 4)
 ├── constants/
-│   ├── challenges.ts                ✅ 50 challenges
+│   ├── challenges.ts                ✅ 41 challenges (pruned from 51)
 │   ├── config.ts                    ✅ radius bounds, geolocation opts, Overpass URLs
 │   ├── voices.grumpyBarman.ts       ✅ 60 strings + spinButton
 │   ├── voices.localLad.ts           ✅ 60 strings + spinButton
@@ -75,7 +79,9 @@ src/
 │   ├── ireland-polygon.ts           ✅ 15-pt placeholder polygon (see Known Truths)
 │   ├── ireland-polygon.test.ts      ✅ 14 tests
 │   ├── logger.ts                    ✅ prod-safe console wrapper
-│   ├── overpass.ts                  ✅ Overpass query (pub+bar), primary+fallback mirrors, 10s timeout
+│   ├── directions.ts                ✅ Mapbox Directions API wrapper (walking profile, 2500ms timeout)
+│   ├── directions.test.ts           ✅ 9 tests (success, each failure mode)
+│   ├── overpass.ts                  ✅ Overpass query (pub+bar), four mirrors raced via Promise.any
 │   ├── overpass.test.ts             ✅ 10 tests (parseOverpassResponse)
 │   └── storage.ts                   ✅ typed `offyego:` localStorage wrapper, SSR-safe
 └── types/pub.ts                     ✅ Pub, Personality, Voice
@@ -85,7 +91,8 @@ src/
 
 - One logical change per commit. Conventional prefixes (`feat:`, `fix:`,
   `chore:`, `docs:`).
-- `Co-Authored-By: Claude` trailer stays on commits for this project.
+- `Co-Authored-By: Claude` trailer stays on ALL commits for this project.
+  This is a per-project decision; do not omit it.
 - TypeScript errors are blockers. Fix before moving on.
 - Flag, don't decide. If the spec doesn't cover it, raise a numbered
   flag and wait for the Architect. Do not pick a "reasonable default"
@@ -93,6 +100,14 @@ src/
 - Read before editing. Run the Read tool before Edit. Re-read after a
   meaningful edit; your in-context view goes stale.
 - Test as you ship. New logic gets a test in the same session.
+- For any commit that touches user-visible behaviour, Playwright headless
+  verification is the standard. CLI build + test alone is insufficient
+  for components, gates, interaction logic, or visual rendering. The
+  pattern is: code-verify with `tsc + npm test`, then drive the actual
+  app with Playwright to confirm the user-facing behaviour.
+- Never paste secrets, tokens, API keys, or `.env` file contents in chat
+  or commit. Screenshots of secret-management pages also count as leaks.
+  If a secret is potentially exposed, rotate immediately.
 
 ## How to start a phase
 
@@ -135,10 +150,10 @@ src/
   is an Architect task before Phase 6 launch.
 - **User-facing strings live ONLY in `src/constants/voices.*.ts`.** If
   you see hardcoded English in a component, that is a bug.
-- **No commits push yet.** Origin still points at the old repo name.
+- **Commits push to the old repo name.** Origin is still `radiculee/Random-pub-finder-ireland` until the Architect completes the rename task. Pushes work fine on the old name.
 - **Deployed to Vercel** at `offyego-bagpc03yl-radiculees-projects.vercel.app`.
   Repo rename and DNS to `offyego.ie` are pending Architect tasks. Do
-  not share this URL externally — wait for `offyego.ie`.
+  not share this URL externally - wait for `offyego.ie`.
 - **`vercel.json` exists at repo root** to force Next.js framework
   detection. It worked around stale project settings during Phase 2
   deployment. Check this file before changing Vercel configuration.
@@ -152,6 +167,17 @@ src/
   introduce `useVoiceMessage()` to generalise this; the two
   `pickRandom` inline duplications at `page.tsx` and `Roulette.tsx`
   are marked `// TODO(phase-4)`.
+- **Mapbox tiles + Directions.** We use Mapbox dark-v11 raster tiles
+  (NOT Mapbox GL JS) via `react-leaflet` TileLayer. Walking time comes
+  from Mapbox Directions API (walking profile), called once per spin on
+  the final selected pub. Token in `NEXT_PUBLIC_MAPBOX_TOKEN`. Free tier
+  covers v1 traffic. Do not downgrade to OSM tiles; the Mapbox decision
+  is final for v1.
+- **Haversine is the fallback, not the primary.** `lib/geo.ts`
+  `walkingMinutes()` is still used for: (a) the initial estimate on all
+  Overpass pubs, and (b) the tilde fallback when Directions times out or
+  errors. The tilde ("~X min walk") signals to the user that the time is
+  an estimate. Never remove the haversine fallback path.
 
 ## What NOT to do
 

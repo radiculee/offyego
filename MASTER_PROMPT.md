@@ -1,4 +1,4 @@
-# Off Ye Go — Master Build Spec
+# Off Ye Go - Master Build Spec
 
 > Single source of truth for building Off Ye Go. Hand this file directly to Claude Code, Copilot, or any agent. If a decision isn't in here, ask before assuming.
 
@@ -6,7 +6,7 @@
 
 ## 1. The Pitch
 
-**Off Ye Go** is a sarcastic, mobile-first web app that randomly picks a pub for you within walking distance, anywhere in the Republic of Ireland. It exists because choice paralysis is real and Dublin alone has 700+ pubs. The user hits a button, the app spins a roulette of nearby pubs, lands on one, gives them a sarcastic challenge to complete there, and shoves them out the door with walking directions. The brand voice is unapologetically Irish — cheeky, dry, slightly transgressive, never offensive.
+**Off Ye Go** is a sarcastic, mobile-first web app that randomly picks a pub for you within walking distance, anywhere in the Republic of Ireland. It exists because choice paralysis is real and Dublin alone has 700+ pubs. The user hits a button, the app spins a roulette of nearby pubs, lands on one, gives them a sarcastic challenge to complete there, and shoves them out the door with walking directions. The brand voice is unapologetically Irish - cheeky, dry, slightly transgressive, never offensive.
 
 **One-line:** *"Can't pick a pub? We'll pick one. Off ye go."*
 
@@ -19,7 +19,7 @@
 These are the rules that make Off Ye Go *Off Ye Go* and not "Random Pub Finder Ireland." Do not soften them.
 
 - **Voice is sarcastic, not cruel.** Punches up at indecision, never down at people.
-- **Republic of Ireland only.** Not "all of Ireland." Not "Ireland and the UK." The app proudly excludes Northern Ireland in v1 — this is a brand stance, not an oversight.
+- **Republic of Ireland only.** Not "all of Ireland." Not "Ireland and the UK." The app proudly excludes Northern Ireland in v1 - this is a brand stance, not an oversight.
 - **Two personalities, two themes.** Switching personality switches the visual theme too. They are coupled.
 - **No emoji in UI copy.** Irish humour is dry. Emoji weakens it.
 - **No em-dashes in user-facing copy.** Period.
@@ -31,9 +31,9 @@ These are the rules that make Off Ye Go *Off Ye Go* and not "Random Pub Finder I
 
 | Layer | Choice | Notes |
 |---|---|---|
-| Framework | Next.js 15 (App Router) | TypeScript strict mode |
+| Framework | Next.js 16 (App Router) | TypeScript strict mode; Turbopack is default for both dev and build in Next.js 16 |
 | Styling | Tailwind CSS v4 | CSS variables for the two themes |
-| Map | `react-leaflet` + `leaflet` | Open source, free. Use `next/dynamic` with `{ ssr: false }` |
+| Map | `react-leaflet` + `leaflet` | Use `next/dynamic` with `{ ssr: false }` for SSR safety |
 | Icons | `lucide-react` | Only where strictly needed; prefer text |
 | Pub data | OpenStreetMap via Overpass API | No API key, no cost |
 | Persistence | `localStorage` only | No DB in v1 |
@@ -41,8 +41,11 @@ These are the rules that make Off Ye Go *Off Ye Go* and not "Random Pub Finder I
 | Donations | Revolut.me link | No Stripe, no merchant account |
 | Analytics | Vercel Analytics (free tier) | Privacy-friendly, no cookie banner needed |
 | Repo | Public, MIT licence | PRs welcome |
+| Maps & routing | Mapbox raster tiles (dark-v11) + Mapbox Directions API (walking profile) | Free tier covers v1 traffic. Token in `NEXT_PUBLIC_MAPBOX_TOKEN` env var. URL-restricted public token (pk.*). |
 
 **Do not add:** state management libraries (Zustand/Redux), backend frameworks, databases, auth, or any paid SDK. If you feel like you need one of these, stop and ask.
+
+Mapbox replaces the originally-specified OSM tiles and haversine-only walking time. OSM data still flows through Mapbox under the hood; the attribution credits both. This tile source is final for v1; no other tile provider should be substituted.
 
 ---
 
@@ -97,16 +100,17 @@ src/
 ### Application state machine
 
 States, in order:
-1. `AGE_GATE` — always the first screen, every visit
-2. `REQUESTING_LOCATION` — geolocation permission pending
-3. `LOCATION_DENIED` — they refused; sarcastic dead-end with re-enable hint
-4. `LOCATION_FAILED` — timeout or error; same gate, slightly different copy
-5. `OUT_OF_IRELAND` — granted location, outside ROI polygon
-6. `READY` — main app: slider + spin button
-7. `SPINNING` — roulette animation, no pubs found yet
-8. `NO_PUBS_FOUND` — Overpass returned zero pubs; sarcastic message + nudge to widen radius
-9. `RESULT` — pub revealed, card showing
-10. `GUILT_TRIP` — modal overlay on top of `RESULT` or `READY`
+1. `AGE_GATE` - always the first screen, every visit
+2. `REQUESTING_LOCATION` - geolocation permission pending
+3. `LOCATION_DENIED` - they refused; sarcastic dead-end with re-enable hint
+4. `LOCATION_FAILED` - timeout or error; same gate, slightly different copy
+5. `OUT_OF_IRELAND` - granted location, outside ROI polygon
+6. `READY` - main app: slider + spin button
+7. `SPINNING` - roulette animation, no pubs found yet
+8. `FETCHING_WALKING_TIME` - roulette has settled visually on the final pub; PubCard waits for Mapbox Directions response (2500ms timeout) before rendering with accurate walking time
+9. `NO_PUBS_FOUND` - Overpass returned zero pubs; sarcastic message + nudge to widen radius
+10. `RESULT` - pub revealed, card showing
+11. `GUILT_TRIP` - modal overlay on top of `RESULT` or `READY`
 
 The user can move back from `RESULT` → `READY` (spin again button) or `RESULT` → external (Get Directions opens Google Maps).
 
@@ -114,31 +118,31 @@ The user can move back from `RESULT` → `READY` (spin again button) or `RESULT`
 
 ## 5. The Republic-of-Ireland Gate
 
-Bounding box alone is **not enough** — a naive box covering Donegal will also cover Belfast and Derry. Two-step check:
+Bounding box alone is **not enough** - a naive box covering Donegal will also cover Belfast and Derry. Two-step check:
 
-**Step 1 — Cheap bounding box (fast reject):**
+**Step 1 - Cheap bounding box (fast reject):**
 ```ts
 const ROI_BBOX = { north: 55.45, south: 51.35, west: -10.70, east: -5.90 };
 ```
 If outside this box, immediately fail.
 
-**Step 2 — Polygon check (excludes NI):**
-Use a simplified GeoJSON polygon of the Republic of Ireland's land border. Point-in-polygon test. There's no need for sub-kilometre precision — a coastline simplified to ~50–100 points is plenty.
+**Step 2 - Polygon check (excludes NI):**
+Use a simplified GeoJSON polygon of the Republic of Ireland's land border. Point-in-polygon test. There's no need for sub-kilometre precision - a coastline simplified to ~50–100 points is plenty.
 
-**Source for the polygon:** Download from Natural Earth or OSM admin boundaries (`ISO3166-1:IE`), simplify with `turf.simplify` or similar to keep the JSON under ~20KB, commit as `src/lib/ireland-polygon.ts`. **Do not use a runtime API call** for this — it's a one-time data fetch, ship it as a constant.
+**Source for the polygon:** Download from Natural Earth or OSM admin boundaries (`ISO3166-1:IE`), simplify with `turf.simplify` or similar to keep the JSON under ~20KB, commit as `src/lib/ireland-polygon.ts`. **Do not use a runtime API call** for this - it's a one-time data fetch, ship it as a constant.
 
-**Use `@turf/boolean-point-in-polygon`** for the test. Don't roll your own — ray-casting edge cases will burn time.
+**Use `@turf/boolean-point-in-polygon`** for the test. Don't roll your own - ray-casting edge cases will burn time.
 
 ---
 
 ## 6. The Three Gates (In Order)
 
 ### 6.1 Age / Disclaimer Gate
-- Shows on every visit (no localStorage persistence — this is intentional, legal cover)
+- Shows on every visit (no localStorage persistence - this is intentional, legal cover)
 - Full-screen overlay, can't be dismissed except by the button
-- Single button: **"I'm 18+ and not easily offended"**
+- Two buttons: **"I'm 18+"** (proceeds into the app) and **"I'm under 18"** (full-page navigation to `drinkaware.ie` via `window.location.assign`). Both use equal secondary-tier styling to avoid visually pre-selecting either path.
 - Copy is dry, not preachy. Example: *"This app is for people over 18 with a sense of humour. If neither applies, the door's behind you."*
-- Both personalities show the same age gate copy (it's not personality-dependent)
+- Both personalities show the same age gate copy. `ageGateButtonAccept` and `ageGateButtonDecline` are intentionally identical strings in both voice files.
 
 ### 6.2 Location Gate
 - After age gate, request `navigator.geolocation.getCurrentPosition()`
@@ -162,14 +166,14 @@ Use a simplified GeoJSON polygon of the Republic of Ireland's land border. Point
 ### 7.1 The Ready Screen
 
 Above the fold, in order:
-1. App title "Off Ye Go" at top (small, the brand is in the experience)
+1. Brand mark "Off Ye Go" renders prominent at the top (`text-3xl font-bold tracking-tight`), under Phase 4 Part 2a typography scale.
 2. Personality toggle: two pill buttons, **The Grumpy Barman** | **The Local Lad**
 3. Radius slider: 0.5km to 10km, step 0.5, default 1km
 4. Slider label updates live: "Find me a pub within **1km**"
-5. Giant spin button — full-width, personality-coloured. Label varies by personality:
+5. Giant spin button - full-width, personality-coloured. Label varies by personality:
    - Grumpy Barman: "Get on with it"
    - Local Lad: "Spin the feckin' wheel"
-6. Footer: small "Buy the dev a pint" Revolut link, GitHub link, MIT licence note
+6. Footer: originally specified but not implemented. Revisit before Phase 6 launch (could live in README links, or persist the omission).
 
 ### 7.2 The Spin
 
@@ -193,12 +197,12 @@ Above the fold, in order:
 
 Contents, top to bottom:
 1. **Pub name** (or "Unnamed (probably grand)" if no `name` tag)
-2. **Walking time:** "12 min walk" (5 km/h, haversine, rounded, minimum "5 min walk")
+2. **Walking time:** real walking time via Mapbox Directions API (walking profile) on the selected pub. Tilde prepended ("~X min walk") when Directions fails or times out and the haversine estimate is used instead. Minimum 5 min walk always enforced.
 3. **Mini Leaflet map** with a single pin
-4. **The challenge:** one randomly selected string from `challenges.ts`, prefixed by personality flavour ("Your dare:", "The barman's orders:", etc.)
+4. **The challenge:** one randomly selected string from `challenges.ts`. Challenge text stands alone, italic, no prefix.
 5. **Two buttons:**
    - **Get Directions** → opens `https://www.google.com/maps/dir/?api=1&destination={lat},{lng}` in new tab. **Resets `spinCount` to 0.**
-   - **Spin Again** → goes back to `SPINNING` state, picks a new pub from the **already-fetched** list (do not re-fetch Overpass — that's slow and wasteful)
+   - **Spin Again** → goes back to `SPINNING` state, picks a new pub from the **already-fetched** list (do not re-fetch Overpass - that's slow and wasteful)
 
 ### 7.4 The Spin-Again Logic
 
@@ -274,7 +278,7 @@ Single shared array in `challenges.ts`. ~40–60 entries. Tone: medium-risk, soc
 - No driving-related dares
 - No anything that could trigger an eating disorder or a self-harm pattern
 
-Same challenge pool for both personalities. The flavour comes from the personality's intro line, not the challenge itself.
+Same challenge pool for both personalities. Challenge text stands alone with no personality prefix. Currently 41 entries (pruned from an initial 51 to remove tame or observation-only items). Personality-split challenge pool is deferred architect work.
 
 ---
 
@@ -283,8 +287,8 @@ Same challenge pool for both personalities. The flavour comes from the personali
 - Request permission **after** age gate, **before** showing any pub UI
 - Use the Permissions API to check state first (`navigator.permissions.query({ name: 'geolocation' })`) and skip the prompt if already granted
 - High-accuracy mode, 10-second timeout
-- Re-use coords for 1 minute (`maximumAge: 60000`) — no need to re-locate on every spin
-- Don't watch position — single fetch per session is plenty
+- Re-use coords for 1 minute (`maximumAge: 60000`) - no need to re-locate on every spin
+- Don't watch position - single fetch per session is plenty
 
 ---
 
@@ -292,12 +296,13 @@ Same challenge pool for both personalities. The flavour comes from the personali
 
 - Dynamically imported in `page.tsx`: `const PubMap = dynamic(() => import('@/components/map/PubMap'), { ssr: false })`
 - Install `leaflet-defaulticon-compatibility` to fix the missing marker icon issue
-- Tile layer: OpenStreetMap default (`https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png`) — free, no key
-- Attribution required: `'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'`
+- Tile layer: Mapbox dark-v11 raster tiles. URL template:
+  `https://api.mapbox.com/styles/v1/mapbox/dark-v11/tiles/{z}/{x}/{y}?access_token=${process.env.NEXT_PUBLIC_MAPBOX_TOKEN}`
+- Attribution required: `'&copy; <a href="https://www.mapbox.com/about/maps/">Mapbox</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'`
 - Single marker on the chosen pub, centred map
 - Zoom level 16 (good balance for "you can see the street")
-- Disable scroll wheel zoom (mobile UX) — `scrollWheelZoom={false}`
-- Map height: ~200px on mobile, fits inside the 420px column
+- Disable scroll wheel zoom (mobile UX) - `scrollWheelZoom={false}`
+- Map height: 192px (`h-48` in Tailwind v4), fits inside the 420px column
 
 ---
 
@@ -349,17 +354,22 @@ type Pub = {
 ```ts
 const walkingMinutes = Math.max(5, Math.round((distanceKm / 5) * 60));
 ```
-(5 km/h pace, minimum 5 minutes — never show "1 min walk")
+(5 km/h pace, minimum 5 minutes - never show "1 min walk")
 
 ### Overpass reliability strategy
 
 Overpass mirrors go down semi-regularly and unpredictably. Rather
 than waiting for a primary to fail before trying a fallback (which
-doubles worst-case latency), `fetchPubs` races both `overpass-api.de`
-and `overpass.kumi.systems` in parallel using `Promise.any()`. The
-first mirror to return a successful response wins; the other is
-ignored. If both fail, the rejection propagates to the caller and
-the state machine routes to `NO_PUBS_FOUND { reason: 'ERROR' }`.
+doubles worst-case latency), `fetchPubs` races all four mirrors in
+parallel using `Promise.any()`. The first mirror to return a
+successful response wins; the rest are aborted. Mirrors:
+- `overpass-api.de`
+- `overpass.kumi.systems`
+- `overpass.private.coffee`
+- `overpass.openstreetmap.ru`
+
+If all four fail, the rejection propagates to the caller and the
+state machine routes to `NO_PUBS_FOUND { reason: 'ERROR' }`.
 
 This is an intentional change from the originally-specified
 primary-then-retry pattern. Accepted by the architect in Phase 3
@@ -376,7 +386,7 @@ All keys prefixed with `offyego:`. Single typed wrapper in `lib/storage.ts`.
 | `offyego:spinCount` | `number` | Triggers guilt-trip modal |
 | `offyego:personality` | `'GRUMPY_BARMAN' \| 'LOCAL_LAD'` | Last selected personality, restored on load |
 
-**Not stored:** age-gate consent (intentional — every visit re-prompts).
+**Not stored:** age-gate consent (intentional - every visit re-prompts).
 
 ---
 
@@ -384,7 +394,7 @@ All keys prefixed with `offyego:`. Single typed wrapper in `lib/storage.ts`.
 
 - Lighthouse mobile: Performance 90+, Accessibility 95+
 - Time to first spin (from page load on mid-range mobile): under 3 seconds
-- Bundle size: under 200KB initial JS (Leaflet is big — make sure it's only loaded on the main app, not the gates)
+- Bundle size: under 200KB initial JS (Leaflet is big - make sure it's only loaded on the main app, not the gates)
 
 ---
 
@@ -401,7 +411,7 @@ All keys prefixed with `offyego:`. Single typed wrapper in `lib/storage.ts`.
 
 ## 16. SEO & Meta
 
-- `<title>`: "Off Ye Go — Can't pick a pub? We'll pick one."
+- `<title>`: "Off Ye Go - Can't pick a pub? We'll pick one."
 - `<meta description>`: "A sarcastic pub randomiser for the Republic of Ireland. Hit spin, get a pub, get a dare, go drink."
 - Open Graph image: a stylised black-and-amber card with the tagline (build later, not v1 blocker)
 - `robots.txt`: allow all
@@ -454,7 +464,7 @@ When you (the agent) work on this project:
 
 1. **Read this entire spec before writing any code.** If a decision isn't here, stop and ask.
 2. **Match the brand voice in code comments and commits too.** Boring code comments are fine; user-facing strings are sacred.
-3. **One personality file per personality.** Do not merge `voices.ts` into a single mega-object — keep them as `voices.grumpyBarman.ts` and `voices.localLad.ts` for readability, then import both into an index.
+3. **One personality file per personality.** Do not merge `voices.ts` into a single mega-object - keep them as `voices.grumpyBarman.ts` and `voices.localLad.ts` for readability, then import both into an index.
 4. **TypeScript strict mode is non-negotiable.** No `any`. Use `unknown` and narrow.
 5. **No console.logs in production code.** Use a tiny `lib/logger.ts` wrapper that no-ops in production.
 6. **Commits are conventional:** `feat:`, `fix:`, `chore:`, `docs:`. One logical change per commit.
@@ -462,4 +472,4 @@ When you (the agent) work on this project:
 
 ---
 
-*End of spec. If you have read this far and are about to start coding: good. Don't pre-write a README — we'll write it after the code works.*
+*End of spec. If you have read this far and are about to start coding: good. Don't pre-write a README - we'll write it after the code works.*

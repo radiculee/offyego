@@ -1,4 +1,4 @@
-# Off Ye Go — Build Timeline
+# Off Ye Go - Build Timeline
 
 > Solo developer with AI pair-programmers. You are the Architect. Claude Code is the Builder. This timeline assumes ~2 hours of focused work per evening, weekdays, with longer weekend sessions. Total target: **ship to production in 10 working days.**
 
@@ -6,15 +6,15 @@
 
 ## Role Definitions
 
-**You (the Architect)** — own decisions, set direction, write specs, verify behaviour, manage infrastructure (domain, Vercel, GitHub, Revolut). You write very little production code yourself. You write copy, you make design calls, you test on real devices.
+**You (the Architect)** - own decisions, set direction, write specs, verify behaviour, manage infrastructure (domain, Vercel, GitHub, Revolut). You write very little production code yourself. You write copy, you make design calls, you test on real devices.
 
-**Claude Code (the Builder)** — writes the React/TypeScript code, sets up the Next.js scaffold, implements components and hooks, fixes bugs you flag. Operates from `MASTER_PROMPT.md`. Asks you when a decision isn't in the spec.
+**Claude Code (the Builder)** - writes the React/TypeScript code, sets up the Next.js scaffold, implements components and hooks, fixes bugs you flag. Operates from `MASTER_PROMPT.md`. Asks you when a decision isn't in the spec.
 
 **The Builder does not:** decide brand voice, pick the personality copy, choose challenges, sign up for services, push to production. Those are yours.
 
 ---
 
-## Phase 0 — Pre-Build (Day 1, ~1 hour)
+## Phase 0 - Pre-Build (Day 1, ~1 hour)
 
 Everything that must exist before any code is written.
 
@@ -39,17 +39,17 @@ Everything that must exist before any code is written.
 
 ---
 
-## Phase 1 — Scaffold & Core Logic (Days 2–3, ~4 hours)
+## Phase 1 - Scaffold & Core Logic (Days 2–3, ~4 hours)
 
-The skeleton. No styling yet, no roulette, no personality — just the state machine and the gates working.
+The skeleton. No styling yet, no roulette, no personality - just the state machine and the gates working.
 
 ### Architect tasks
 
-- [ ] In the repo, run `npx create-next-app@latest .` (TypeScript ✓, ESLint ✓, Tailwind ✓, App Router ✓, no src/ — actually yes use src/, no Turbopack)
+- [ ] In the repo, run `npx create-next-app@latest .` (TypeScript ✓, ESLint ✓, Tailwind ✓, App Router ✓, no src/ - actually yes use src/, no Turbopack)
 - [ ] Open `MASTER_PROMPT.md` in your editor alongside Claude Code
 - [ ] Brief Claude Code: *"Read MASTER_PROMPT.md in full. We're starting Phase 1: scaffold the folder structure exactly as specified in section 4, create stub files (empty exports), and implement `lib/geo.ts` and `lib/ireland-polygon.ts` with the bounding box + polygon point-in-polygon check. Install `@turf/boolean-point-in-polygon` and `@turf/helpers`. Don't build any UI yet."*
 - [ ] Source the ROI polygon: download from Natural Earth (`https://www.naturalearthdata.com/downloads/10m-cultural-vectors/`) or use the OSM Boundary endpoint. Simplify to ~50–100 points using `https://mapshaper.org` (drag-drop, set simplification to ~98%, export GeoJSON). Hand the JSON to Claude Code to embed in `ireland-polygon.ts`
-- [ ] Verify the polygon: ask Claude Code to write a quick test — points in Dublin, Cork, Galway should return true; Belfast, London, Paris should return false. Run it. Eyeball it.
+- [ ] Verify the polygon: ask Claude Code to write a quick test - points in Dublin, Cork, Galway should return true; Belfast, London, Paris should return false. Run it. Eyeball it.
 
 ### Builder tasks
 
@@ -72,23 +72,23 @@ The skeleton. No styling yet, no roulette, no personality — just the state mac
 
 ---
 
-## Phase 2 — Overpass & Roulette Logic (Day 4, ~2 hours)
+## Phase 2 - Overpass & Roulette Logic (Day 4, ~2 hours)
 
 The "find pubs and spin" engine, still no styling.
 
 ### Architect tasks
 
-- [ ] Brief Claude Code: *"Phase 2. Implement `lib/overpass.ts` per spec section 12, and `components/roulette/Roulette.tsx` per section 7.2. The roulette is just a div that cycles through pub names rapidly — no animation polish yet, just the logic. Wire it into `page.tsx` so I can click a placeholder spin button and see it work."*
+- [ ] Brief Claude Code: *"Phase 2. Implement `lib/overpass.ts` per spec section 12, and `components/roulette/Roulette.tsx` per section 7.2. The roulette is just a div that cycles through pub names rapidly - no animation polish yet, just the logic. Wire it into `page.tsx` so I can click a placeholder spin button and see it work."*
 - [ ] Watch Claude Code work. Verify the Overpass query matches spec exactly (both `amenity=pub` and `amenity=bar`)
 - [ ] Test it: from your Dublin location, set radius to 1km, click spin. Should see pub names cycling and one final pick logged
 - [ ] Test edge cases: set radius low enough to get 0 pubs (try going to a rural coordinate via DevTools), confirm the no-pubs state triggers
-- [ ] Decide: pick the final list of 40–60 challenges. Write them in a Google Doc. **Only you can do this — Claude Code will write generic ones.**
+- [ ] Decide: pick the final list of 40–60 challenges. Write them in a Google Doc. **Only you can do this - Claude Code will write generic ones.**
 
 ### Builder tasks
 
 - Implement Overpass fetch with the fallback mirror retry
 - Parse Overpass response into `Pub[]` type (handle missing `name` tag → fallback string)
-- Implement Roulette component (basic — full polish later): cycles names every ~80ms for ~2 seconds, decelerates over the last 500ms, settles
+- Implement Roulette component (basic - full polish later): cycles names every ~80ms for ~2 seconds, decelerates over the last 500ms, settles
 - Respect `prefers-reduced-motion`: skip animation, just show result immediately
 - Implement `useSpinCount` hook with localStorage persistence
 - Wire the no-pubs-found state path
@@ -102,7 +102,7 @@ The "find pubs and spin" engine, still no styling.
 
 ---
 
-## Phase 3 — Result Card, Map, Guilt Trip (Day 5, ~2.5 hours)
+## Phase 3 - Result Card, Map, Guilt Trip (Day 5, ~2.5 hours)
 
 The user-facing result experience.
 
@@ -131,26 +131,42 @@ The user-facing result experience.
 
 ---
 
-## Phase 4 — Personality & Theme (Days 6–7, ~3 hours)
+## Phase 4 - Personality & Theme (Days 6–7, ~3 hours)
 
 The brand. This is where the app stops looking like a college project.
 
+> **Phase 4 Part 1 - COMPLETE.** Voice files pasted, PersonalityToggle built,
+> usePersonality hook wired to localStorage, all hardcoded strings removed.
+>
+> **Phase 4 Part 2a - COMPLETE.** Theme-neutral layout and typography foundation,
+> CSS variable system, hydration-safe personality switching, voice routing audit.
+> Build clean, 33/33 tests passing.
+>
+> **Phase 4 Part 2 Prep - COMPLETE (commits 5cbba8b through e1845b2).**
+> Status snapshot, challenge prefix dropped, pool pruned to 41, Mapbox tiles
+> (dark-v11), Mapbox Directions for walking time, this docs sweep.
+>
+> **Phase 4 Part 2b - NEXT.** Palette trial commits (four trial commits on
+> temporary branches, final pick cherry-picked into main). Visual leap.
+> Existing architect homework: nothing new -- Mapbox token is in place,
+> routing is complete.
+
 ### Architect tasks
 
-- [ ] Paste the 120 personality strings (from Phase 0 doc) into `constants/voices.grumpyBarman.ts` and `constants/voices.localLad.ts`
-- [ ] Brief Claude Code: *"Phase 4. Implement the two themes per spec section 8. Use CSS custom properties on a root class — apply `grumpy-barman` or `local-lad` to the `<body>` based on `usePersonality` hook. Tailwind v4's @theme should use the CSS variables. Build the PersonalityToggle component. Make every user-facing string read from the active personality's voice file."*
+- [x] Paste the 120 personality strings (from Phase 0 doc) into `constants/voices.grumpyBarman.ts` and `constants/voices.localLad.ts`
+- [ ] Brief Claude Code: *"Phase 4 Part 2b. Palette trials per the Phase 4 plan."*
 - [ ] After Claude Code finishes the themes, **open Claude Design** (claude.ai) and paste screenshots of each theme. Ask for visual refinement notes. Specifically: "Does the Grumpy Barman feel like a dim Dublin snug? Does the Local Lad feel like a warm Sunday fireside?" Iterate.
-- [ ] Write the **15 sarcastic loading messages** for each personality (Phase 0 should have covered this; if not, do it now)
-- [ ] Personally test every single user-facing string for tone. Reject anything that feels AI-generated, generic, or soft. **No em-dashes anywhere.**
+- [x] Write the sarcastic loading messages for each personality
+- [x] Personally test every single user-facing string for tone.
 
 ### Builder tasks
 
-- Implement theme switching via CSS variables on root class
-- Implement PersonalityToggle as two pill buttons
-- Hook up `usePersonality` to read/write localStorage
-- Replace every hardcoded string in the app with a call to the active voice config
-- Add subtle theme-specific touches: amber underline accents for Grumpy Barman, slightly rounded corners for Local Lad
-- Build the typography hierarchy (font sizes, weights) per theme
+- [x] Implement theme switching via CSS variables on root class
+- [x] Implement PersonalityToggle as two pill buttons
+- [x] Hook up `usePersonality` to read/write localStorage
+- [x] Replace every hardcoded string in the app with a call to the active voice config
+- [ ] Add subtle theme-specific touches: amber underline accents for Grumpy Barman, slightly rounded corners for Local Lad (Phase 4 Part 2b)
+- [ ] Build the typography hierarchy (font sizes, weights) per theme (Phase 4 Part 2b)
 
 ### Phase 4 done when
 
@@ -160,17 +176,23 @@ The brand. This is where the app stops looking like a college project.
 
 ---
 
-## Phase 5 — Polish, Roulette Animation, Edge Cases (Day 8, ~2 hours)
+## Phase 5 - Polish, Roulette Animation, Edge Cases (Day 8, ~2 hours)
 
 The pre-launch checklist.
 
+> **Note (Phase 4 Part 2 Prep):** We are already on Mapbox tiles and Directions;
+> no tile-provider migration is needed in Phase 5. Phase 5 owns: real-device test (iPhone + Android),
+> the four `react-hooks/exhaustive-deps` lint fixes (known, deferred), expansion
+> of the four under-10-variant voice arrays, and the ROI polygon replacement.
+> Cloudflare layer remains planned for Phase 6.
+
 ### Architect tasks
 
-- [ ] Brief Claude Code: *"Phase 5. Polish pass. (a) Make the roulette animation feel satisfying — deceleration curve, optional subtle haptic on mobile via vibration API, sound off by default. (b) Add the loading state UX — sarcastic message shows during Overpass fetch. (c) Implement reduced-motion bypass. (d) Add an ErrorBoundary at the root. (e) Make sure the 420px column constraint is real on desktop and that the wider screen has subtle pub-aesthetic decoration outside the column (your choice — dark wood gradient, dim spotlight effect, whatever fits)."*
+- [ ] Brief Claude Code: *"Phase 5. Polish pass. (a) Make the roulette animation feel satisfying - deceleration curve, optional subtle haptic on mobile via vibration API, sound off by default. (b) Add the loading state UX - sarcastic message shows during Overpass fetch. (c) Implement reduced-motion bypass. (d) Add an ErrorBoundary at the root. (e) Make sure the 420px column constraint is real on desktop and that the wider screen has subtle pub-aesthetic decoration outside the column (your choice - dark wood gradient, dim spotlight effect, whatever fits)."*
 - [ ] Test on real iOS Safari and Android Chrome. Note any bugs. List them.
 - [ ] Hand the bug list back to Claude Code one at a time
 - [ ] Run Lighthouse on mobile. Target 90+ Performance, 95+ Accessibility. Fix what doesn't hit
-- [ ] Test the location-denied flow on real Safari — click Block, see the gate. Then in Settings, re-enable. Confirm app recovers on refresh
+- [ ] Test the location-denied flow on real Safari - click Block, see the gate. Then in Settings, re-enable. Confirm app recovers on refresh
 
 ### Builder tasks
 
@@ -184,12 +206,12 @@ The pre-launch checklist.
 ### Phase 5 done when
 
 - Lighthouse mobile: 90+ Performance, 95+ Accessibility
-- Roulette feels good — at minimum, it doesn't feel cheap
+- Roulette feels good - at minimum, it doesn't feel cheap
 - All bugs from real-device testing closed
 
 ---
 
-## Phase 6 — Launch (Days 9–10, ~3 hours total)
+## Phase 6 - Launch (Days 9–10, ~3 hours total)
 
 Domain pointed, deployed, announced.
 
@@ -203,22 +225,22 @@ Domain pointed, deployed, announced.
   - One-paragraph pitch
   - Screenshots of both themes
   - Local dev setup instructions
-  - Contribution guide (one paragraph — "PRs welcome, match the voice, no em-dashes")
+  - Contribution guide (one paragraph - "PRs welcome, match the voice, no em-dashes")
   - Tech stack list
   - MIT licence link
 - [ ] Set Vercel Analytics on
 - [ ] Final smoke test in production: full flow on iOS Safari with location enabled, location denied, and outside-Ireland (VPN to London)
 - [ ] Write the launch posts:
   - **LinkedIn:** lead with the story (choice paralysis in Dublin, why you built it, two-week solo build, what you learned). Include screenshot. End with the link and "Built with Next.js, Leaflet, OpenStreetMap. Source on GitHub."
-  - **Twitter/X:** punchier — "Spent 2 weeks building Off Ye Go. It picks a random Dublin pub for you and dares you to do something stupid there. [link]"
-  - **Reddit r/ireland:** very different tone. They'll smell self-promotion. Lead with the joke, not the build. "Made a thing that picks pubs for you when you can't decide. Roasts you in two Irish accents. Off Ye Go — [link]." Be ready for some sarcasm in return, lean into it
+  - **Twitter/X:** punchier - "Spent 2 weeks building Off Ye Go. It picks a random Dublin pub for you and dares you to do something stupid there. [link]"
+  - **Reddit r/ireland:** very different tone. They'll smell self-promotion. Lead with the joke, not the build. "Made a thing that picks pubs for you when you can't decide. Roasts you in two Irish accents. Off Ye Go - [link]." Be ready for some sarcasm in return, lean into it
 - [ ] Post all three within a few hours of each other
-- [ ] Pin the LinkedIn post — it's the portfolio piece
+- [ ] Pin the LinkedIn post - it's the portfolio piece
 
 ### Builder tasks
 
 - Fix any production-only bugs that surface
-- Generate the OG image (one static PNG) — can be skipped to v1.1 if time-crunched
+- Generate the OG image (one static PNG) - can be skipped to v1.1 if time-crunched
 
 ### Phase 6 done when
 
@@ -260,7 +282,7 @@ Things that will eat your time if you ignore them:
 | Personality copy sounds generic | The only fix is you writing it yourself, not the AI. Budget time in Phase 0 |
 | Scope creep ("just one more feature") | Re-read spec section 17 every time you're tempted |
 | Real-device bugs only show on iOS Safari | Test on your phone every phase, not just at the end |
-| You hate the design after Phase 4 | Use Claude Design with screenshots — don't redesign in code |
+| You hate the design after Phase 4 | Use Claude Design with screenshots - don't redesign in code |
 
 ---
 
