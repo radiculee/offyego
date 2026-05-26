@@ -193,6 +193,10 @@ The pre-launch checklist.
 - [ ] Hand the bug list back to Claude Code one at a time
 - [ ] Run Lighthouse on mobile. Target 90+ Performance, 95+ Accessibility. Fix what doesn't hit
 - [ ] Test the location-denied flow on real Safari - click Block, see the gate. Then in Settings, re-enable. Confirm app recovers on refresh
+- [ ] Sentry free tier integration. Sign up at sentry.io, create a Next.js project, get the DSN, install @sentry/nextjs, run the wizard (or follow the manual Next.js App Router setup if the wizard misbehaves on Next 16), add NEXT_PUBLIC_SENTRY_DSN and SENTRY_AUTH_TOKEN to Vercel env vars (Production and Preview environments). Confirm a test error from a deployed preview appears in Sentry dashboard before marking complete.
+- [ ] Decision deferred: source maps upload (helps debug minified production errors). Sentry wizard offers this; either enable and add SENTRY_AUTH_TOKEN, or skip for v1 and add later if errors prove hard to read.
+- [ ] GitHub Actions workflow at .github/workflows/ci.yml. Triggers: push to main, pull requests against main. Steps: checkout, setup-node@v4 with node 20, npm ci, npm run build, npm test, npm run lint. Does NOT gate Vercel deploys (Vercel handles its own pipeline) - this is purely a visible red X / green check on commits and PRs in the GitHub UI. Use the official actions/setup-node and actions/checkout (no third-party actions).
+- [ ] Decide whether to fail the workflow on lint errors. Current lint state has 4 known react-hooks/exhaustive-deps errors that are intentionally deferred. Either: (a) fix those four before adding CI so lint fails on real new errors only, or (b) configure the workflow to soft-fail lint and hard-fail build+test. Architect call when reaching this task.
 
 ### Builder tasks
 
