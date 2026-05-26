@@ -36,7 +36,43 @@
 }
 
 html.theme-grumpy-barman {
-  /* Phase 4 Part 2b: amber/wood palette overrides go here. */
+  /* Aged Newspaper palette - warm dark brown with brick-red/terracotta accent */
+  --bg-page: #1e1610;
+  --bg-surface: #2a1f16;
+  --bg-elevated: #352719;
+  --fg-primary: #e8d9be;
+  --fg-muted: #9e8d72;
+  --fg-accent: #e07e40;
+  --border-subtle: #231a11;
+  --border-strong: #3d2e1f;
+  /* Serif editorial typography for Aged Newspaper */
+  --font-display: var(--font-playfair);
+  --font-body: var(--font-lora);
+}
+
+/* Corner vignette atmosphere: warm terracotta from bottom corners */
+html.theme-grumpy-barman body {
+  background:
+    radial-gradient(
+      ellipse at 0% 100%,
+      rgba(224, 126, 64, 0.04) 0%,
+      transparent 55%
+    ),
+    radial-gradient(
+      ellipse at 100% 100%,
+      rgba(224, 126, 64, 0.04) 0%,
+      transparent 55%
+    ),
+    var(--bg-page);
+}
+
+/* Compass seal illustration - shown only in Grumpy Barman */
+.compass-seal-icon {
+  display: none;
+  color: var(--fg-accent);
+}
+html.theme-grumpy-barman .compass-seal-icon {
+  display: block;
 }
 
 html.theme-local-lad {
