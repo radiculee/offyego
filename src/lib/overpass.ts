@@ -1,8 +1,4 @@
-import {
-  MAX_PUBS_IN_MEMORY,
-  OVERPASS_MIRRORS,
-  OVERPASS_TIMEOUT_MS,
-} from '@/constants/config';
+import { MAX_PUBS_IN_MEMORY, OVERPASS_TIMEOUT_MS } from '@/constants/config';
 import type { Pub } from '@/types/pub';
 import { haversineMeters, walkingMinutes } from './geo';
 
@@ -57,13 +53,6 @@ export function parseOverpassResponse(
   return pubs.slice(0, MAX_PUBS_IN_MEMORY);
 }
 
-async function fetchFromMirror(endpoint: string, query: string, signal: AbortSignal): Promise<unknown> {
-  const url = `${endpoint}?data=${encodeURIComponent(query)}`;
-  const response = await fetch(url, { signal });
-  if (!response.ok) throw new Error(`Overpass HTTP ${response.status}`);
-  return response.json();
-}
-
 export async function fetchPubs(params: {
   lat: number;
   lng: number;
@@ -71,17 +60,21 @@ export async function fetchPubs(params: {
 }): Promise<Pub[]> {
   const { lat, lng, radiusM } = params;
   const query = buildQuery(lat, lng, radiusM);
-  const controllers = OVERPASS_MIRRORS.map(() => new AbortController());
-  const timer = setTimeout(() => controllers.forEach(c => c.abort()), OVERPASS_TIMEOUT_MS);
+  const controller = new AbortController();
+  // 3s buffer over server-side timeout to account for client→Vercel round-trip
+  const timer = setTimeout(() => controller.abort(), OVERPASS_TIMEOUT_MS + 3_000);
   try {
-    const raw = await Promise.any(
-      OVERPASS_MIRRORS.map((endpoint, i) =>
-        fetchFromMirror(endpoint, query, controllers[i]!.signal),
-      ),
-    );
+    const response = await fetch('/api/overpass', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query }),
+      signal: controller.signal,
+    });
+    if (!response.ok) throw new Error(`Overpass proxy HTTP ${response.status}`);
+    const raw: unknown = await response.json();
     return parseOverpassResponse(raw, { lat, lng });
   } finally {
     clearTimeout(timer);
-    controllers.forEach(c => c.abort());
+    controller.abort();
   }
 }
