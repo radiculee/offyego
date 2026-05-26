@@ -4,7 +4,13 @@ import { OVERPASS_MIRRORS, OVERPASS_TIMEOUT_MS } from '@/constants/config';
 export const dynamic = 'force-dynamic';
 
 async function fetchMirror(endpoint: string, query: string, signal: AbortSignal): Promise<unknown> {
-  const res = await fetch(`${endpoint}?data=${encodeURIComponent(query)}`, { signal });
+  const res = await fetch(`${endpoint}?data=${encodeURIComponent(query)}`, {
+    signal,
+    headers: {
+      'Accept': 'application/json, text/html;q=0.9, */*;q=0.8',
+      'User-Agent': 'OffYeGo/1.0 (https://offyego.ie)',
+    },
+  });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json() as Promise<unknown>;
 }
