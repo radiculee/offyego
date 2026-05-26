@@ -241,9 +241,19 @@ export default function Page() {
 
   return (
     <Shell>
-      <h1 className="font-display text-fg-primary text-3xl font-bold tracking-tight">
-        {voice.brandMark}
-      </h1>
+      <div className="flex flex-col items-center">
+        <span className="pendant-lamp-icon mb-2" aria-hidden="true">
+          <svg width="16" height="26" viewBox="0 0 16 26" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <rect x="7.5" y="0" width="1" height="8" rx="0.5" />
+            <path d="M4.5 8 L2.5 18 L13.5 18 L11.5 8 Z" />
+            <rect x="2.5" y="18" width="11" height="1.5" rx="0.75" />
+            <ellipse cx="8" cy="23" rx="4.5" ry="1.8" opacity="0.35" />
+          </svg>
+        </span>
+        <h1 className="font-display text-fg-primary text-3xl font-bold tracking-tight">
+          {voice.brandMark}
+        </h1>
+      </div>
 
       {state.kind === 'AGE_GATE' && (
         <AgeGate
