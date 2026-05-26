@@ -51,6 +51,7 @@ export function parseOverpassResponse(
       lng: el.lon,
       distanceMeters,
       walkingMinutes: walkingMinutes(distanceMeters),
+      walkingTimeIsEstimate: true,
     });
   }
   return pubs.slice(0, MAX_PUBS_IN_MEMORY);

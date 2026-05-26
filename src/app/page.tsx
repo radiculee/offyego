@@ -20,6 +20,7 @@ import {
 } from '@/hooks/useGeolocation';
 import { usePersonality } from '@/hooks/usePersonality';
 import { useSpinCount } from '@/hooks/useSpinCount';
+import { fetchWalkingMinutes } from '@/lib/directions';
 import { isInIreland } from '@/lib/ireland-polygon';
 import { logger } from '@/lib/logger';
 import { fetchPubs } from '@/lib/overpass';
@@ -41,6 +42,13 @@ type State =
     }
   | { kind: 'NO_PUBS_FOUND'; coords: GeolocationCoords; reason: NoPubsReason; messageIndex: number }
   | {
+      kind: 'FETCHING_WALKING_TIME';
+      coords: GeolocationCoords;
+      pubs: readonly Pub[];
+      pickedPub: Pub;
+      challengeIndex: number;
+    }
+  | {
       kind: 'RESULT';
       coords: GeolocationCoords;
       pubs: readonly Pub[];
@@ -57,6 +65,7 @@ type Action =
   | { type: 'SPIN_FETCH_SUCCESS'; pubs: readonly Pub[]; messageIndex: number }
   | { type: 'SPIN_FETCH_ERROR'; messageIndex: number }
   | { type: 'SPIN_SETTLED'; pickedPub: Pub; challengeIndex: number }
+  | { type: 'DIRECTIONS_RESULT'; walkingMinutes: number; isEstimate: boolean }
   | { type: 'SPIN_AGAIN'; radiusM: number }
   | { type: 'BACK_TO_READY' };
 
@@ -88,11 +97,24 @@ function reducer(state: State, action: Action): State {
     case 'SPIN_SETTLED':
       if (state.kind !== 'SPINNING' || !state.pubs) return state;
       return {
-        kind: 'RESULT',
+        kind: 'FETCHING_WALKING_TIME',
         coords: state.coords,
         pubs: state.pubs,
         pickedPub: action.pickedPub,
         challengeIndex: action.challengeIndex,
+      };
+    case 'DIRECTIONS_RESULT':
+      if (state.kind !== 'FETCHING_WALKING_TIME') return state;
+      return {
+        kind: 'RESULT',
+        coords: state.coords,
+        pubs: state.pubs,
+        pickedPub: {
+          ...state.pickedPub,
+          walkingMinutes: action.walkingMinutes,
+          walkingTimeIsEstimate: action.isEstimate,
+        },
+        challengeIndex: state.challengeIndex,
       };
     case 'SPIN_AGAIN':
       if (state.kind !== 'RESULT') return state;
@@ -157,6 +179,29 @@ export default function Page() {
       cancelled = true;
     };
   }, [state, voice]);
+
+  // Directions call fires once per spin, on the final settled pub.
+  useEffect(() => {
+    if (state.kind !== 'FETCHING_WALKING_TIME') return;
+    let cancelled = false;
+    const { coords, pickedPub } = state;
+    void (async () => {
+      const result = await fetchWalkingMinutes(
+        { lat: coords.lat, lng: coords.lng },
+        { lat: pickedPub.lat, lng: pickedPub.lng },
+        pickedPub.walkingMinutes,
+      );
+      if (cancelled) return;
+      dispatch({
+        type: 'DIRECTIONS_RESULT',
+        walkingMinutes: result.walkingMinutes,
+        isEstimate: result.kind === 'fallback',
+      });
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [state]);
 
   useEffect(() => {
     if (shouldShowGuiltTrip && state.kind === 'RESULT') {
@@ -257,6 +302,23 @@ export default function Page() {
               }}
             />
           )}
+        </div>
+      )}
+
+      {state.kind === 'FETCHING_WALKING_TIME' && (
+        <div className="space-y-6">
+          <RadiusSlider
+            voice={voice}
+            value={radiusKm}
+            onChange={setRadiusKm}
+            disabled
+          />
+          <div
+            aria-live="polite"
+            className="text-fg-primary py-8 text-center text-2xl font-semibold"
+          >
+            {state.pickedPub.name}
+          </div>
         </div>
       )}
 

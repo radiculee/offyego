@@ -5,6 +5,7 @@ export type Pub = {
   lng: number;
   distanceMeters: number;
   walkingMinutes: number;
+  walkingTimeIsEstimate: boolean;
 };
 
 export type Personality = 'GRUMPY_BARMAN' | 'LOCAL_LAD';

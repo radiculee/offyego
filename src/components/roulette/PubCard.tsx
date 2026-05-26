@@ -26,7 +26,7 @@ export function PubCard({
     <div className="bg-bg-surface border-border-subtle space-y-4 rounded-lg border p-5">
       <h2 className="text-fg-primary text-2xl font-semibold">{pub.name}</h2>
       <p className="text-fg-muted text-sm uppercase tracking-wider">
-        {pub.walkingMinutes} min walk
+        {pub.walkingTimeIsEstimate ? `~${pub.walkingMinutes}` : pub.walkingMinutes} min walk
       </p>
       <div className="border-border-subtle h-48 overflow-hidden rounded-md border">
         <PubMap lat={pub.lat} lng={pub.lng} />
