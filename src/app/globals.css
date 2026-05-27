@@ -3,7 +3,7 @@
 @import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
 
 :root {
-  /* Colour. Placeholder neutral palette; theme classes override below. */
+  /* Shared neutral fallback palette — theme classes override on first paint. */
   --bg-page: #0a0a0a;
   --bg-surface: #1a1a1a;
   --bg-elevated: #2a2a2a;
@@ -13,11 +13,11 @@
   --border-subtle: #2a2a2a;
   --border-strong: #444444;
 
-  /* Typography. */
+  /* Typography — personality theme blocks override. */
   --font-display: Arial, Helvetica, sans-serif;
   --font-body: Arial, Helvetica, sans-serif;
 
-  /* Motion. */
+  /* Motion tokens. */
   --transition-fast: 150ms ease;
   --transition-slow: 300ms ease;
 }
@@ -35,13 +35,112 @@
   --font-body: var(--font-body);
 }
 
+/* ── Grumpy Barman — Late Snug palette ─────────────────────────────────── */
+
 html.theme-grumpy-barman {
-  /* Phase 4 Part 2b: amber/wood palette overrides go here. */
+  /* Late Snug: near-black warm charcoal, amber accent */
+  --bg-page: #0f0d0b;
+  --bg-surface: #221c15;
+  --bg-elevated: #2e2619;
+  --fg-primary: #ede0cc;
+  --fg-muted: #9a8a74;
+  --fg-accent: #c8904a;
+  --border-subtle: #1e1812;
+  --border-strong: #342c1e;
+  --font-display: var(--font-grumpy-display);
+  --font-body: var(--font-grumpy-body);
 }
 
-html.theme-local-lad {
-  /* Phase 4 Part 2b: green/fireside palette overrides go here. */
+/* Pendant-lamp atmosphere: single warm light from top centre */
+html.theme-grumpy-barman body {
+  background:
+    radial-gradient(
+      ellipse at 50% -10%,
+      rgba(200, 144, 74, 0.08) 0%,
+      transparent 50%
+    ),
+    var(--bg-page);
 }
+
+/* Pendant lamp illustration — shown only in Grumpy Barman */
+.pendant-lamp-icon {
+  display: none;
+  color: var(--fg-accent);
+}
+html.theme-grumpy-barman .pendant-lamp-icon {
+  display: block;
+}
+
+/* ── Local Lad — Hurling Field palette ─────────────────────────────────── */
+
+html.theme-local-lad {
+  /* Hurling Field: deep Irish green, GAA red accent */
+  --bg-page: #1f3b29;
+  --bg-surface: #263f30;
+  --bg-elevated: #2f4d39;
+  --fg-primary: #ece7d8;
+  --fg-muted: #a8a08c;
+  --fg-accent: #b93327;
+  --border-subtle: #2a4635;
+  --border-strong: #3a5944;
+  --font-display: var(--font-local-display);
+  --font-body: var(--font-local-body);
+}
+
+/* Afternoon sunlight atmosphere: diagonal warm light from top-right */
+html.theme-local-lad body {
+  background:
+    linear-gradient(
+      148deg,
+      rgba(210, 170, 60, 0.05) 0%,
+      transparent 42%
+    ),
+    var(--bg-page);
+}
+
+/* Pint glass illustration — shown only in Local Lad */
+.pint-glass-icon {
+  display: none;
+  color: var(--fg-primary);
+}
+html.theme-local-lad .pint-glass-icon {
+  display: block;
+}
+
+/* ── Signature animations (AgeGate only) ───────────────────────────────── */
+
+@keyframes lamp-swing {
+  0%, 100% { transform: rotate(-3deg); }
+  50%       { transform: rotate(3deg); }
+}
+
+@keyframes glass-tilt {
+  0%, 100% { transform: rotate(0deg); }
+  50%       { transform: rotate(-4deg); }
+}
+
+/* Grumpy Barman: pendant lamp swings gently from cord attachment */
+.pendant-lamp-icon.lamp-animated {
+  transform-origin: top center;
+  animation: lamp-swing 4.5s ease-in-out infinite;
+}
+
+/* Local Lad: pint glass tilts gently from glass base */
+.pint-glass-icon.glass-animated {
+  transform-origin: bottom center;
+  animation: glass-tilt 3.5s ease-in-out infinite;
+}
+
+/* Respect user's motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .pendant-lamp-icon.lamp-animated,
+  .pint-glass-icon.glass-animated {
+    animation: none;
+    transform: none;
+  }
+}
+
+/* ── Base styles ────────────────────────────────────────────────────────── */
 
 body {
   background: var(--bg-page);

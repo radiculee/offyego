@@ -3,6 +3,7 @@
 import 'leaflet-defaulticon-compatibility';
 import { MapContainer, Marker, TileLayer } from 'react-leaflet';
 import { MAP_ZOOM } from '@/constants/config';
+import { usePersonality } from '@/hooks/usePersonality';
 
 type Props = {
   lat: number;
@@ -10,6 +11,10 @@ type Props = {
 };
 
 export default function PubMap({ lat, lng }: Props) {
+  const { personality } = usePersonality();
+  // Grumpy Barman: dark-v11 (moody late-night) | Local Lad: outdoors-v12 (neighbourhood map)
+  const mapStyle = personality === 'LOCAL_LAD' ? 'outdoors-v12' : 'dark-v11';
+
   return (
     <MapContainer
       center={[lat, lng]}
@@ -19,7 +24,7 @@ export default function PubMap({ lat, lng }: Props) {
     >
       <TileLayer
         attribution='&copy; <a href="https://www.mapbox.com/about/maps/">Mapbox</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        url={`https://api.mapbox.com/styles/v1/mapbox/dark-v11/tiles/{z}/{x}/{y}?access_token=${process.env.NEXT_PUBLIC_MAPBOX_TOKEN}`}
+        url={`https://api.mapbox.com/styles/v1/mapbox/${mapStyle}/tiles/{z}/{x}/{y}?access_token=${process.env.NEXT_PUBLIC_MAPBOX_TOKEN}`}
       />
       <Marker position={[lat, lng]} />
     </MapContainer>
