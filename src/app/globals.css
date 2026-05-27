@@ -40,7 +40,39 @@ html.theme-grumpy-barman {
 }
 
 html.theme-local-lad {
-  /* Phase 4 Part 2b: green/fireside palette overrides go here. */
+  /* Fireside palette - warm dark wood panelling, burnt ember accent, settled indoor warmth */
+  --bg-page: hsl(20, 32%, 18%);
+  --bg-surface: hsl(20, 28%, 24%);
+  --bg-elevated: hsl(20, 25%, 31%);
+  --fg-primary: hsl(38, 25%, 89%);
+  --fg-muted: hsl(35, 18%, 65%);
+  --fg-accent: hsl(22, 70%, 36%);
+  --border-subtle: hsl(20, 20%, 28%);
+  --border-strong: hsl(20, 20%, 36%);
+  /* Warm storyteller typography */
+  --font-display: var(--font-vollkorn);
+  --font-body: var(--font-nunito);
+}
+
+/* Firelight atmosphere: radial warmth radiating from bottom-left corner (hearth placement) */
+html.theme-local-lad body {
+  background:
+    radial-gradient(
+      ellipse 80% 65% at 0% 100%,
+      rgba(200, 90, 25, 0.07) 0%,
+      rgba(180, 70, 20, 0.035) 44%,
+      transparent 70%
+    ),
+    var(--bg-page);
+}
+
+/* Folded newspaper illustration - shown only in Local Lad */
+.newspaper-icon {
+  display: none;
+  color: var(--fg-primary);
+}
+html.theme-local-lad .newspaper-icon {
+  display: block;
 }
 
 body {

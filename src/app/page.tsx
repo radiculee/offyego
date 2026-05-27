@@ -241,9 +241,21 @@ export default function Page() {
 
   return (
     <Shell>
-      <h1 className="font-display text-fg-primary text-3xl font-bold tracking-tight">
-        {voice.brandMark}
-      </h1>
+      <div className="flex flex-col items-center">
+        <span className="newspaper-icon mb-2" aria-hidden="true">
+          {/* Folded newspaper: L-shaped body with evenodd text-line cutouts + semi-transparent fold corner */}
+          <svg width="16" height="26" viewBox="0 0 16 26" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <path
+              fillRule="evenodd"
+              d="M1.5 3.5 L9 3.5 L9 8.5 L14.5 8.5 L14.5 23 L1.5 23 Z M3 12 L12 12 L12 13.2 L3 13.2 Z M3 16 L10.5 16 L10.5 16.9 L3 16.9 Z M3 19.5 L11 19.5 L11 20.4 L3 20.4 Z"
+            />
+            <path d="M9 3.5 L14.5 8.5 L9 8.5 Z" opacity="0.45" />
+          </svg>
+        </span>
+        <h1 className="font-display text-fg-primary text-3xl font-bold tracking-tight">
+          {voice.brandMark}
+        </h1>
+      </div>
 
       {state.kind === 'AGE_GATE' && (
         <AgeGate
