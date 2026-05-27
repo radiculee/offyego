@@ -40,7 +40,38 @@ html.theme-grumpy-barman {
 }
 
 html.theme-local-lad {
-  /* Phase 4 Part 2b: green/fireside palette overrides go here. */
+  /* Hurling Field palette - vivid Irish green + GAA red accent */
+  --bg-page: #1f3b29;
+  --bg-surface: #263f30;
+  --bg-elevated: #2f4d39;
+  --fg-primary: #ece7d8;
+  --fg-muted: #a8a08c;
+  --fg-accent: #b93327;
+  --border-subtle: #2a4635;
+  --border-strong: #3a5944;
+  /* Friendly rounded typography for Local Lad */
+  --font-display: var(--font-fraunces);
+  --font-body: var(--font-dm-sans);
+}
+
+/* Afternoon sunlight atmosphere: diagonal warm light from top-right */
+html.theme-local-lad body {
+  background:
+    linear-gradient(
+      148deg,
+      rgba(210, 170, 60, 0.05) 0%,
+      transparent 42%
+    ),
+    var(--bg-page);
+}
+
+/* Pint glass illustration - shown only in Local Lad */
+.pint-glass-icon {
+  display: none;
+  color: var(--fg-primary);
+}
+html.theme-local-lad .pint-glass-icon {
+  display: block;
 }
 
 body {
