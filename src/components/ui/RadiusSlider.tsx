@@ -5,6 +5,7 @@ import {
   RADIUS_MIN_KM,
   RADIUS_STEP_KM,
 } from '@/constants/config';
+import { formatSliderWalkLabel } from '@/lib/walking-time';
 import type { Voice } from '@/types/pub';
 
 type Props = {
@@ -14,7 +15,7 @@ type Props = {
   disabled?: boolean;
 };
 
-const TOKEN = '{value}';
+const TOKEN = '{walkTime}';
 
 export function RadiusSlider({
   voice,
@@ -30,7 +31,7 @@ export function RadiusSlider({
     ) : (
       <>
         {template.slice(0, idx)}
-        <strong className="font-semibold">{value}km</strong>
+        <strong className="font-semibold">{formatSliderWalkLabel(value)}</strong>
         {template.slice(idx + TOKEN.length)}
       </>
     );
