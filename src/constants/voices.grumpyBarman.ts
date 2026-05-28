@@ -26,7 +26,7 @@ export const grumpyBarmanVoice: Voice = {
   guiltTripDismissButton: "I'm just a cheapskate",
   locationRequestingMessage: 'Looking. Hold on.',
   locationRetryButton: 'Try again',
-  radiusSliderLabel: 'Within {walkTime} walk. Get on with it.',
+  radiusSliderLabel: '{walkTime}. Get on with it.',
 
   loadingMessages: [
     "Aye. Hold on.",

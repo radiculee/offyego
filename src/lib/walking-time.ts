@@ -15,7 +15,7 @@ export function approxWalkingMinutes(km: number): number {
  */
 export function formatSliderWalkLabel(km: number): string {
   const minutes = approxWalkingMinutes(km);
-  if (minutes >= 60) return 'over 1 hour';
-  if (minutes >= 40) return `${Math.round(minutes / 5) * 5} min`;
-  return `${minutes} min`;
+  if (minutes >= 60) return 'Over an hour walk';
+  if (minutes >= 40) return `Within ${Math.round(minutes / 5) * 5} min walk`;
+  return `Within ${minutes} min walk`;
 }
