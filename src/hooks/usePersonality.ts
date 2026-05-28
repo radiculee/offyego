@@ -8,14 +8,10 @@ import type { Personality, Voice } from '@/types/pub';
 const DEFAULT_PERSONALITY: Personality = 'GRUMPY_BARMAN';
 
 export function usePersonality() {
+  // Lazy initializer reads localStorage once on mount (storage.get is SSR-safe).
   const [personality, setPersonalityState] = useState<Personality>(
-    DEFAULT_PERSONALITY,
+    () => storage.get('personality') ?? DEFAULT_PERSONALITY,
   );
-
-  useEffect(() => {
-    const stored = storage.get('personality');
-    if (stored !== null) setPersonalityState(stored);
-  }, []);
 
   useEffect(() => {
     if (typeof document === 'undefined') return;

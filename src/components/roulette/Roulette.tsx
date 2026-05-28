@@ -41,8 +41,11 @@ export function Roulette({ pubs, onSettled }: Props) {
     const finalPub = pickRandom(pubs);
 
     if (prefersReducedMotion()) {
-      setDisplayName(finalPub.name);
-      onSettledRef.current(finalPub);
+      // Defer out of the synchronous effect body to match the timer-based path.
+      setTimeout(() => {
+        setDisplayName(finalPub.name);
+        onSettledRef.current(finalPub);
+      }, 0);
       return;
     }
 

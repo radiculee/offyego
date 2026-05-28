@@ -1,16 +1,12 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { GUILT_TRIP_THRESHOLD } from '@/constants/config';
 import { storage } from '@/lib/storage';
 
 export function useSpinCount() {
-  const [count, setCount] = useState(0);
-
-  useEffect(() => {
-    const stored = storage.get('spinCount');
-    if (stored !== null) setCount(stored);
-  }, []);
+  // Lazy initializer reads localStorage once on mount (storage.get is SSR-safe).
+  const [count, setCount] = useState(() => storage.get('spinCount') ?? 0);
 
   const increment = useCallback(() => {
     setCount((prev) => {

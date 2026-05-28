@@ -205,6 +205,9 @@ export default function Page() {
 
   useEffect(() => {
     if (shouldShowGuiltTrip && state.kind === 'RESULT') {
+      // guiltModalOpen cannot be pure derived state because the user can dismiss
+      // the modal independently; this effect is the only correct trigger point.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setGuiltModalOpen(true);
     }
   }, [shouldShowGuiltTrip, state.kind]);
