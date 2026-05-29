@@ -57,7 +57,8 @@ export function GuiltTripModal({ voice, onClose, onBuyPint }: Props) {
   return (
     <div
       onClick={onClose}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-5 backdrop-blur-sm"
+      style={{ zIndex: 'var(--z-modal)' }}
+      className="fixed inset-0 flex items-center justify-center bg-black/60 px-5 backdrop-blur-sm"
     >
       <div
         ref={modalRef}

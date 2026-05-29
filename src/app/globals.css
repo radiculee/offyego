@@ -20,6 +20,10 @@
   /* Motion tokens. */
   --transition-fast: 150ms ease;
   --transition-slow: 300ms ease;
+
+  /* Z-index scale. Leaflet internal panes go up to z-index 1000 (controls).
+     Modal must exceed that; 2000 leaves headroom for future layers. */
+  --z-modal: 2000;
 }
 
 @theme inline {
