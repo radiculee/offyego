@@ -112,24 +112,52 @@ export const grumpyBarmanVoice: Voice = {
     'Your phone took too long. Try again.',
     'Timed out. Maybe stand near a window.',
     'Took an age and got nothing. Try again.',
+    'Ten seconds. Nothing. The satellites have better things to do.',
+    'Timed out. Happens. Try again or go home.',
+    'Too slow. The location service gave up before I did.',
+    'Timed out. The GPS has better things to do.',
+    'Nothing in time. Step outside and try again.',
+    "That's on the phone, not me. Try again.",
+    'Gave up after ten seconds. So did the GPS.',
   ],
 
   locationUnavailableMessages: [
     "Can't find you. Bad GPS, bad area, bad luck. Try again.",
     'GPS has nothing for me. Step outside and retry.',
     'No location data. The satellites are sulking. Try again.',
+    'Location failed. Try somewhere less underground.',
+    "No signal. The sky can't see you from in there.",
+    'GPS refused. Move somewhere less concrete and try again.',
+    "Can't pin you down. Neither can the GPS. Try outside.",
+    'Location service is not at its best today. Try again.',
+    'The roof is probably in the way. Move and retry.',
+    'No fix. Indoors, underground, or just unlucky. Try again.',
   ],
 
   notFoundMessages: [
     'Wrong door. No pub here.',
     "You're in the wrong place. Back the way you came.",
     'Nothing on this page. Off ye go.',
+    'No pub down this path.',
+    'Wrong turn. Start again.',
+    'Nothing here. Back to the front door.',
+    'This page has nothing for you.',
+    "Not here. Whatever you're after, it isn't here.",
+    "Wrong address. The pub's somewhere else.",
+    "You've gone the wrong way. It happens.",
   ],
 
-  // Phase 5: expand to 10 variants.
   overpassErrorMessages: [
     "The map server's down. Not my problem. Try in a bit.",
+
     "Overpass is asleep. So am I. Try later.",
     "Data's offline. The pubs are still there, but I can't see them.",
+    "The pub data's not responding. Try again in a moment.",
+    "Can't reach the map server. Give it a minute.",
+    'Server trouble. The pubs exist. The data does not, right now.',
+    "API's down. Not a lot I can do. Try again shortly.",
+    "Map data's gone quiet. It'll come back. Try again.",
+    'Connection failed. The data source is having a moment.',
+    "Can't pull the pub list right now. Try again in a bit.",
   ],
 };
