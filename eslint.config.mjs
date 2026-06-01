@@ -12,11 +12,11 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
-    // One-off Playwright verification/diagnostic scripts — not production code.
+    // Agent diagnostic scripts -- gitignored and untracked, but ESLint
+    // does not respect .gitignore so the patterns must live here too.
+    "diagnose-*.mjs",
+    "capture-*.mjs",
     "verify-*.mjs",
-    "diagnose-modal.mjs",
-    "capture-hero.mjs",
-    "verify-modal-fix.mjs",
   ]),
 ]);
 

@@ -44,6 +44,15 @@ next-env.d.ts
 # Claude Code per-developer settings (team settings.json is committed)
 .claude/settings.local.json
 
+# Agent diagnostic scripts (kept local, not tracked)
+/diagnose-*.mjs
+/diagnose-*.cjs
+/capture-*.mjs
+/capture-*.cjs
+/verify-*.mjs
+/verify-*.cjs
+/verify-screenshots*/
+
 # Binary documents (receipts, PDFs, screenshots)
 *.pdf
 
