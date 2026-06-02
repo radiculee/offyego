@@ -53,6 +53,15 @@ next-env.d.ts
 /verify-*.cjs
 /verify-screenshots*/
 
+# Raw GeoJSON source data used to generate the ROI polygon.
+# The derived polygon lives in src/lib/ireland-polygon.ts which is committed.
+# To regenerate: download Natural Earth ne_10m_admin_0_countries.geojson,
+# place at data/, then run node scripts/extract-ireland-polygon.mjs
+/data/
+
+# Polygon extraction script (one-off tooling, not production code)
+/scripts/extract-ireland-polygon.mjs
+
 # Binary documents (receipts, PDFs, screenshots)
 *.pdf
 
