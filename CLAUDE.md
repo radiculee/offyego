@@ -108,6 +108,14 @@ src/
 - Never paste secrets, tokens, API keys, or `.env` file contents in chat
   or commit. Screenshots of secret-management pages also count as leaks.
   If a secret is potentially exposed, rotate immediately.
+- When asked for a status report or audit, the agent stays strictly
+  within agreed scope. Recommendations must be tied to v1 launch
+  readiness, ranked, and bounded. The agent does not propose
+  v2-deferred ideas (see the v2-deferred section) as next steps.
+- Sentry is integrated as of commit 44aaa20. The end-to-end smoke
+  test (deploy, trigger error, confirm in dashboard) is deferred to
+  post-launch. Until verified, assume Sentry MAY OR MAY NOT be
+  capturing errors in production. Treat this as a known unknown.
 
 ## How to start a phase
 
@@ -178,6 +186,36 @@ src/
   Overpass pubs, and (b) the tilde fallback when Directions times out or
   errors. The tilde ("~X min walk") signals to the user that the time is
   an estimate. Never remove the haversine fallback path.
+
+## v2-deferred ideas (do NOT propose for v1)
+
+These ideas have been considered and explicitly deferred to v2 by the
+architect. Do not propose them as Phase 5 or Phase 6 work, even when
+asked open-ended questions like "what should we do next?":
+
+- Time-of-day theming (replacing personality switching with a
+  clock-driven theme)
+- ErrorBoundary component wrapping the app (Sentry already handles
+  error reporting; ErrorBoundary is UX polish for post-launch)
+- Haptic feedback via navigator.vibrate (Android-only, fragments
+  user experience across platforms)
+- Lazy-load Leaflet only after first spin (Lighthouse 99 means
+  there is nothing to optimise; premature optimisation)
+- Underdog-pub claims / pub-side editorial weighting (would violate
+  the random-spin brand promise)
+- Walk-time-based spin filter (slider currently labels in walk-time
+  but operates on radius internally; converting the operation itself
+  to walk-time requires per-pub Directions calls and is v2 work)
+
+## Project state milestones (rolling)
+
+Most recent first.
+
+- 2026-06-02: Phase 5 builder work complete (10 commits, ending at
+  6d17ea4). Tests 43/43, lint 0/0, Lighthouse mobile 99/98/100/100
+  on commit 6d17ea4. Sentry integrated but end-to-end smoke test
+  deferred to post-launch. Architect verifications remaining:
+  Android device test.
 
 ## What NOT to do
 
