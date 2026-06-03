@@ -1,38 +1,44 @@
 /**
- * Pub doorway silhouette — shown on the READY screen for BOTH personalities.
+ * Pub doorway — shown on the READY screen for BOTH personalities.
  *
- * Unlike PendantLamp / PintGlass (which are personality-specific and toggled
- * via CSS display), the doorway always renders. Its fill is a stack of three
- * semi-transparent black shadow tones (frame darkest, door body mid, glass
- * lightest) defined as CSS variables in globals.css. Because the fills are
- * translucent black, the door reads as a shadow over whichever personality
- * background sits behind it: a warm-charcoal shadow on Grumpy Barman, a
- * darker green on Local Lad. Never the accent colour.
+ * Treatment: a warm cream patch of light, as if spilling through an open
+ * doorway. The glass panes and handle are NOT a separate colour; they are
+ * cut out of the cream via an SVG mask, so the page background shows through
+ * them (near-black on Grumpy Barman, green on Local Lad). Same cream hex for
+ * both personalities; only the background revealed through the cutouts differs.
  *
- * Static. No animation (the spin button is the moving element on this screen).
+ * Static. No animation (the spin button is the only moving element here).
  * Decorative only, so aria-hidden.
  *
- * viewBox is 100x220 (~1:2.2 door proportions). Sized by height via clamp so
- * it fills the vertical space below the spin button across phone heights.
+ * viewBox is 100x195 (~1:1.95). Sized by height via clamp with width auto, so
+ * it lands at ~380x195 on a 390x844 phone (~45% of viewport height) and scales
+ * down on shorter screens without distorting the door proportions.
  */
 export function PubDoorway() {
   return (
     <span className="pub-doorway-icon" aria-hidden="true">
       <svg
-        style={{ height: 'clamp(150px, 28vh, 260px)', width: 'auto' }}
-        viewBox="0 0 100 220"
+        style={{ height: 'clamp(280px, 45vh, 480px)', width: 'auto' }}
+        viewBox="0 0 100 195"
         xmlns="http://www.w3.org/2000/svg"
       >
-        {/* casing / frame — darkest, slightly wider than the door inside it */}
-        <rect x="6" y="4" width="88" height="212" rx="2" fill="var(--door-frame)" />
-        {/* door panel — mid shadow, inset within the frame */}
-        <rect x="14" y="12" width="72" height="198" rx="1" fill="var(--door-fill)" />
-        {/* upper glass — two panes split by a mullion, lightest shadow
-            (suggests faint light from the street beyond) */}
-        <rect x="22" y="22" width="26" height="62" rx="1" fill="var(--door-glass)" />
-        <rect x="52" y="22" width="26" height="62" rx="1" fill="var(--door-glass)" />
-        {/* handle hint — short vertical push bar, right side, ~60% from top */}
-        <rect x="76" y="120" width="3.5" height="26" rx="1.75" fill="var(--door-glass)" />
+        <defs>
+          {/* white = cream stays, black = hole to the page background */}
+          <mask id="pub-doorway-cut">
+            <rect x="0" y="0" width="100" height="195" fill="#fff" />
+            {/* upper glass — two panes split by a cream mullion */}
+            <rect x="18" y="16" width="28" height="62" rx="1.5" fill="#000" />
+            <rect x="54" y="16" width="28" height="62" rx="1.5" fill="#000" />
+            {/* handle push-bar — right side, ~60% from top */}
+            <rect x="80" y="104" width="4" height="26" rx="2" fill="#000" />
+          </mask>
+        </defs>
+        <g mask="url(#pub-doorway-cut)">
+          {/* casing / frame — slightly darker cream, wider than the door */}
+          <rect x="2" y="2" width="96" height="191" rx="3" fill="var(--door-frame)" />
+          {/* door panel — main warm cream */}
+          <rect x="8" y="8" width="84" height="181" rx="2" fill="var(--door-fill)" />
+        </g>
       </svg>
     </span>
   );

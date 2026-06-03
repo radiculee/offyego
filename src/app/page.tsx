@@ -281,10 +281,11 @@ export default function Page() {
             <RadiusSlider voice={voice} value={radiusKm} onChange={setRadiusKm} />
             <SpinButton label={voice.spinButton} onClick={handleSpin} />
           </div>
-          {/* Doorway silhouette fills the lower screen below the spin button.
-              mt-auto pushes it to the bottom of the Shell flex column, leaving
-              generous breathing room between it and the button. Decorative. */}
-          <div className="mt-auto flex justify-center pb-2" aria-hidden="true">
+          {/* Doorway fills the lower screen below the spin button. mt-auto
+              pushes it to the bottom of the Shell flex column; -mb-4 pulls it
+              into the Shell's bottom padding so it sits ~16px from the screen
+              edge. Decorative. */}
+          <div className="mt-auto -mb-4 flex justify-center" aria-hidden="true">
             <PubDoorway />
           </div>
         </>
