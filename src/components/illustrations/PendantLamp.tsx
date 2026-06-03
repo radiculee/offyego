@@ -14,8 +14,7 @@ export function PendantLamp({ animated = false }: { animated?: boolean }) {
       aria-hidden="true"
     >
       <svg
-        width="16"
-        height="26"
+        style={{ height: 'clamp(80px, 18vh, 160px)', width: 'auto' }}
         viewBox="0 0 16 26"
         fill="currentColor"
         xmlns="http://www.w3.org/2000/svg"

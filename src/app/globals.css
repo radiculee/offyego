@@ -114,25 +114,25 @@ html.theme-local-lad .pint-glass-icon {
 /* ── Signature animations (AgeGate only) ───────────────────────────────── */
 
 @keyframes lamp-swing {
-  0%, 100% { transform: rotate(-3deg); }
-  50%       { transform: rotate(3deg); }
+  0%, 100% { transform: rotate(-6deg); }
+  50%       { transform: rotate(6deg); }
 }
 
 @keyframes glass-tilt {
   0%, 100% { transform: rotate(0deg); }
-  50%       { transform: rotate(-4deg); }
+  50%       { transform: rotate(-8deg); }
 }
 
-/* Grumpy Barman: pendant lamp swings gently from cord attachment */
+/* Grumpy Barman: pendant lamp swings from cord attachment */
 .pendant-lamp-icon.lamp-animated {
   transform-origin: top center;
-  animation: lamp-swing 4.5s ease-in-out infinite;
+  animation: lamp-swing 3s ease-in-out infinite;
 }
 
-/* Local Lad: pint glass tilts gently from glass base */
+/* Local Lad: pint glass tilts from glass base */
 .pint-glass-icon.glass-animated {
   transform-origin: bottom center;
-  animation: glass-tilt 3.5s ease-in-out infinite;
+  animation: glass-tilt 2.5s ease-in-out infinite;
 }
 
 /* Respect user's motion preference */
