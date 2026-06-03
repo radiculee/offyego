@@ -4,6 +4,7 @@ import { useEffect, useReducer, useState } from 'react';
 import { AgeGate } from '@/components/gates/AgeGate';
 import { IrelandGate } from '@/components/gates/IrelandGate';
 import { LocationGate } from '@/components/gates/LocationGate';
+import { PubDoorway } from '@/components/illustrations/PubDoorway';
 import { Shell } from '@/components/layout/Shell';
 import { GuiltTripModal } from '@/components/modals/GuiltTripModal';
 import { PubCard } from '@/components/roulette/PubCard';
@@ -274,11 +275,19 @@ export default function Page() {
       {state.kind === 'OUT_OF_IRELAND' && <IrelandGate voice={voice} />}
 
       {state.kind === 'READY' && (
-        <div className="space-y-6">
-          <PersonalityToggle />
-          <RadiusSlider voice={voice} value={radiusKm} onChange={setRadiusKm} />
-          <SpinButton label={voice.spinButton} onClick={handleSpin} />
-        </div>
+        <>
+          <div className="space-y-6">
+            <PersonalityToggle />
+            <RadiusSlider voice={voice} value={radiusKm} onChange={setRadiusKm} />
+            <SpinButton label={voice.spinButton} onClick={handleSpin} />
+          </div>
+          {/* Doorway silhouette fills the lower screen below the spin button.
+              mt-auto pushes it to the bottom of the Shell flex column, leaving
+              generous breathing room between it and the button. Decorative. */}
+          <div className="mt-auto flex justify-center pb-2" aria-hidden="true">
+            <PubDoorway />
+          </div>
+        </>
       )}
 
       {state.kind === 'SPINNING' && (

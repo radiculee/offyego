@@ -24,6 +24,15 @@
   /* Z-index scale. Leaflet internal panes go up to z-index 1000 (controls).
      Modal must exceed that; 2000 leaves headroom for future layers. */
   --z-modal: 2000;
+
+  /* Pub doorway silhouette (READY screen). Translucent black shadow tones,
+     identical for both personalities; they darken whichever theme background
+     sits behind them, so the door reads as a shadow (warm charcoal on Grumpy,
+     darker green on Local Lad) rather than an accent. Frame darkest, door
+     body mid, glass lightest. */
+  --door-frame: rgba(0, 0, 0, 0.45);
+  --door-fill: rgba(0, 0, 0, 0.3);
+  --door-glass: rgba(0, 0, 0, 0.16);
 }
 
 @theme inline {
