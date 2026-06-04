@@ -144,12 +144,30 @@ html.theme-local-lad .pint-glass-icon {
   animation: glass-tilt 2.5s ease-in-out infinite;
 }
 
+/* Result reveal: 250ms fade-in as the PubCard lands after the spin */
+@keyframes pubcard-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.pubcard-reveal {
+  animation: pubcard-fade-in 250ms ease-out both;
+}
+
 /* Respect user's motion preference */
 @media (prefers-reduced-motion: reduce) {
   .pendant-lamp-icon.lamp-animated,
   .pint-glass-icon.glass-animated {
     animation: none;
     transform: none;
+  }
+  .pubcard-reveal {
+    animation: none;
   }
 }
 

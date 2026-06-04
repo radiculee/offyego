@@ -215,6 +215,16 @@ export default function Page() {
 
   const handleSpin = () => {
     if (state.kind !== 'READY') return;
+    // Warm the GIF cache the instant the user commits to a spin, so the
+    // stout-pour renders without a flash. Skipped for reduced-motion users,
+    // who never see the GIF.
+    if (
+      typeof window !== 'undefined' &&
+      !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    ) {
+      const img = new window.Image();
+      img.src = '/spin/stout-pour.gif';
+    }
     incrementSpinCount();
     dispatch({ type: 'START_SPIN', radiusM: Math.round(radiusKm * 1000) });
   };
@@ -292,30 +302,16 @@ export default function Page() {
       )}
 
       {state.kind === 'SPINNING' && (
-        <div className="space-y-6">
-          <RadiusSlider
-            voice={voice}
-            value={radiusKm}
-            onChange={setRadiusKm}
-            disabled
-          />
-          {state.pubs === undefined ? (
-            <SpinButton
-              label={voice.spinButton}
-              onClick={() => {}}
-              loading
-              disabled
-            />
-          ) : (
-            <Roulette
-              pubs={state.pubs}
-              onSettled={(pickedPub) => {
-                const challengeIndex = Math.floor(Math.random() * CHALLENGES.length);
-                dispatch({ type: 'SPIN_SETTLED', pickedPub, challengeIndex });
-              }}
-            />
-          )}
-        </div>
+        // The GIF spin is the central element; pubs may be undefined while
+        // Overpass is still fetching. Roulette loops the pour until both the
+        // results have arrived and the 1.5s brand floor has passed.
+        <Roulette
+          pubs={state.pubs}
+          onSettled={(pickedPub) => {
+            const challengeIndex = Math.floor(Math.random() * CHALLENGES.length);
+            dispatch({ type: 'SPIN_SETTLED', pickedPub, challengeIndex });
+          }}
+        />
       )}
 
       {state.kind === 'FETCHING_WALKING_TIME' && (
@@ -356,14 +352,18 @@ export default function Page() {
 
       {state.kind === 'RESULT' && (
         <>
-          <PubCard
-            pub={state.pickedPub}
-            challenge={CHALLENGES[state.challengeIndex % CHALLENGES.length] ?? ''}
-            spinAgainLabel={voice.spinAgainButton}
-            getDirectionsLabel={voice.getDirectionsButton}
-            onGetDirections={handleGetDirections}
-            onSpinAgain={handleSpinAgain}
-          />
+          {/* 250ms reveal fade as the result lands (wrapper only; PubCard
+              itself is untouched). Suppressed under reduced motion. */}
+          <div className="pubcard-reveal">
+            <PubCard
+              pub={state.pickedPub}
+              challenge={CHALLENGES[state.challengeIndex % CHALLENGES.length] ?? ''}
+              spinAgainLabel={voice.spinAgainButton}
+              getDirectionsLabel={voice.getDirectionsButton}
+              onGetDirections={handleGetDirections}
+              onSpinAgain={handleSpinAgain}
+            />
+          </div>
           {guiltModalOpen && (
             <GuiltTripModal
               voice={voice}
