@@ -186,6 +186,14 @@ src/
   Overpass pubs, and (b) the tilde fallback when Directions times out or
   errors. The tilde ("~X min walk") signals to the user that the time is
   an estimate. Never remove the haversine fallback path.
+- **Spin animation GIF carries the Guinness harp trademark.** The asset
+  at `public/spin/stout-pour.gif` contains the Guinness harp. Decision
+  made on 2026-06-09 by the architect to accept this risk for v1 launch.
+  The asset is swappable: the file path is referenced as a single
+  constant (`GIF_SRC`) in `src/components/roulette/Roulette.tsx`, so a
+  generic stout-pour alternative can be substituted with a single file
+  replacement and one constant update if Diageo flags it or before
+  scaling beyond a hobby or portfolio audience.
 
 ## v2-deferred ideas (do NOT propose for v1)
 
