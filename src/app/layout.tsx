@@ -43,8 +43,7 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  // TODO Phase 6 DNS cutover: change to https://offyego.ie
-  metadataBase: new URL('https://offyego.vercel.app'),
+  metadataBase: new URL('https://offyego.ie'),
   title: "Off Ye Go: Can't pick a pub? We'll pick one.",
   description:
     'A sarcastic pub randomiser for the Republic of Ireland. Hit spin, get a pub, get a dare, go drink.',

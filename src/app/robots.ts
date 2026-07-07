@@ -8,7 +8,6 @@ export default function robots(): MetadataRoute.Robots {
       // Block the Overpass proxy from being crawled -- machine-readable data, not user content
       disallow: ['/api/'],
     },
-    // TODO Phase 6 DNS cutover: change to https://offyego.ie/sitemap.xml
-    sitemap: 'https://offyego.vercel.app/sitemap.xml',
+    sitemap: 'https://offyego.ie/sitemap.xml',
   };
 }
