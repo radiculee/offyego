@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { parseOverpassResponse } from './overpass';
+import { OVERPASS_QUERY_TIMEOUT_S } from '@/constants/config';
+import { buildQuery, parseOverpassResponse } from './overpass';
 
 const dublin = { lat: 53.3498, lng: -6.2603 };
 
@@ -89,5 +90,49 @@ describe('parseOverpassResponse', () => {
     const result = parseOverpassResponse(raw, dublin);
     expect(result).toHaveLength(1);
     expect(result[0]?.id).toBe(2);
+  });
+
+  it('measures distance from the caller position, not the snapped query centre', () => {
+    // Node sits exactly on the snapped centre (53.35, -6.26). If distance were
+    // measured from the snapped origin it would collapse to 0.
+    const raw = { elements: [{ type: 'node', id: 1, lat: 53.35, lon: -6.26 }] };
+    const result = parseOverpassResponse(raw, dublin);
+    expect(result[0]?.distanceMeters).toBeGreaterThan(0);
+  });
+});
+
+describe('buildQuery', () => {
+  it('snaps the search centre to the cache grid so repeat spins share a key', () => {
+    // Two GPS readings a few metres apart must produce a byte-identical query;
+    // the query string is the server cache key that shields the Overpass quota.
+    const a = buildQuery(53.349812, -6.260344, 1000);
+    const b = buildQuery(53.349751, -6.260401, 1000);
+    expect(a).toBe(b);
+    expect(a).toContain('53.35');
+    expect(a).toContain('-6.26');
+  });
+
+  it('keeps distinct locations on distinct cache keys', () => {
+    expect(buildQuery(53.3498, -6.2603, 1000)).not.toBe(buildQuery(53.2707, -9.0568, 1000));
+  });
+
+  it('keeps distinct radii on distinct cache keys', () => {
+    expect(buildQuery(53.3498, -6.2603, 1000)).not.toBe(buildQuery(53.3498, -6.2603, 2000));
+  });
+
+  it('requests both pubs and bars in a single anchored-regex statement', () => {
+    const q = buildQuery(53.3498, -6.2603, 1000);
+    expect(q).toContain('"amenity"~"^(pub|bar)$"');
+    // Anchors matter: an unanchored regex would drag in amenity=public_bookcase
+    // and anything else merely containing "bar".
+    expect(q).toContain('^(');
+    expect(q).toContain(')$');
+    expect(q.match(/around:/g)).toHaveLength(1);
+  });
+
+  it('carries the configured Overpass-side timeout, not the old hardcoded 10s', () => {
+    expect(buildQuery(53.3498, -6.2603, 1000)).toContain(
+      `[timeout:${OVERPASS_QUERY_TIMEOUT_S}]`,
+    );
   });
 });
