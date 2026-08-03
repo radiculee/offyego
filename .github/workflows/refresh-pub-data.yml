@@ -1,0 +1,107 @@
+name: Refresh pub data
+
+# The pub dataset is generated at build time rather than queried live, because
+# Overpass rate-limits per IP and Vercel shares outbound IPs. That trade buys
+# total reliability at the cost of freshness, so this job buys the freshness
+# back once a month. OSM pub data moves slowly; a new pub waits weeks, not
+# months, and no user ever waits on Overpass.
+on:
+  schedule:
+    # 03:00 UTC on the 1st. Quiet hours, and well clear of Overpass's busy
+    # period, which matters because the generator retries patiently.
+    - cron: '0 3 1 * *'
+  workflow_dispatch:
+
+concurrency:
+  group: refresh-pub-data
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    name: Regenerate dataset and open PR
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Regenerate pub dataset
+        # The script retries the primary mirror patiently before falling back,
+        # and refuses to write a dataset that is smaller or older than the
+        # committed one, so a bad upstream day fails the job instead of
+        # silently shipping a gutted or stale file.
+        run: node scripts/build-pub-dataset.mjs
+        # Overpass can be slow when its slot quota is contended. Nobody is
+        # waiting on this job, so give it room rather than aborting.
+        timeout-minutes: 30
+
+      - name: Check for changes
+        id: diff
+        run: |
+          if git diff --quiet -- src/data/pubs.json; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No change in the dataset; nothing to do."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            git diff --stat -- src/data/pubs.json
+          fi
+
+      - name: Validate the regenerated dataset
+        # Guards live in src/lib/pub-dataset.test.ts: row-count floor, unique
+        # ids, ROI bounding box, and no Northern Ireland. Never open a PR
+        # against data that fails them.
+        if: steps.diff.outputs.changed == 'true'
+        run: npm test
+
+      - name: Open pull request
+        if: steps.diff.outputs.changed == 'true'
+        # Uses the preinstalled gh CLI with the built-in GITHUB_TOKEN so the
+        # project takes on no third-party action dependency.
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          BRANCH="chore/refresh-pub-data-$(date -u +%Y-%m-%d)"
+          COUNT=$(node -p "require('./src/data/pubs.json').count")
+          GENERATED=$(node -p "require('./src/data/pubs.json').generated")
+
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+          git add src/data/pubs.json
+          git commit -F- <<EOF
+          chore: refresh pub dataset
+
+          Regenerated from OSM via scripts/build-pub-dataset.mjs.
+          Snapshot: $GENERATED
+          Pubs: $COUNT
+
+          Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+          EOF
+          git push -u origin "$BRANCH"
+
+          gh pr create \
+            --title "chore: refresh pub dataset ($COUNT pubs)" \
+            --body "Automated monthly refresh of \`src/data/pubs.json\`.
+
+          - OSM snapshot: \`$GENERATED\`
+          - Pubs: **$COUNT**
+
+          The generator refuses to write a dataset below the row-count floor or
+          older than the committed snapshot, and \`npm test\` validated the ROI
+          bounding box, id uniqueness and Northern Ireland exclusion before this
+          PR was opened. Review the diff for anything surprising, then merge to
+          deploy." \
+            --base main \
+            --head "$BRANCH"

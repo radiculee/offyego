@@ -24,7 +24,7 @@ import { useSpinCount } from '@/hooks/useSpinCount';
 import { fetchWalkingMinutes } from '@/lib/directions';
 import { isInIreland } from '@/lib/ireland-polygon';
 import { logger } from '@/lib/logger';
-import { fetchPubs } from '@/lib/overpass';
+import { findPubsWithin, prefetchPubDataset } from '@/lib/pub-dataset';
 import type { Pub } from '@/types/pub';
 
 type NoPubsReason = 'EMPTY' | 'ERROR';
@@ -155,7 +155,15 @@ export default function Page() {
     }
   }, [geoState]);
 
-  // Overpass fetch fires whenever SPINNING is entered without pubs.
+  // Warm the dataset chunk as soon as the user reaches the spin screen, so the
+  // download overlaps with them setting a radius rather than delaying the spin.
+  useEffect(() => {
+    if (state.kind === 'READY') prefetchPubDataset();
+  }, [state.kind]);
+
+  // Pub lookup fires whenever SPINNING is entered without pubs. This resolves
+  // against the bundled dataset, so the only way it can fail is the dataset
+  // chunk itself failing to load (offline, or a CDN blip).
   useEffect(() => {
     if (state.kind !== 'SPINNING' || state.pubs !== undefined) return;
     let cancelled = false;
@@ -165,13 +173,13 @@ export default function Page() {
     const errorPoolLen = voice.overpassErrorMessages.length;
     (async () => {
       try {
-        const pubs = await fetchPubs({ lat, lng, radiusM });
+        const pubs = await findPubsWithin({ lat, lng, radiusM });
         if (cancelled) return;
         const messageIndex = Math.floor(Math.random() * noPubsPoolLen);
         dispatch({ type: 'SPIN_FETCH_SUCCESS', pubs, messageIndex });
       } catch (err) {
         if (cancelled) return;
-        logger.error('Overpass fetch failed (both mirrors):', err);
+        logger.error('Pub dataset failed to load:', err);
         const messageIndex = Math.floor(Math.random() * errorPoolLen);
         dispatch({ type: 'SPIN_FETCH_ERROR', messageIndex });
       }
