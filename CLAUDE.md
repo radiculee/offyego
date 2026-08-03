@@ -27,7 +27,7 @@ Driven from `git log --oneline` and the src tree.
 |---|---|---|
 | 0 | ✅ | `offyego.ie` registered, `offyego.com` defensive. GitHub repo exists (rename pending). Voice/challenge content drafted (60 strings/personality) and lives in `src/constants/`. |
 | 1 | ✅ | Scaffold (Next 16 + React 19 + TS strict + Tailwind v4 + Vitest), `lib/geo.ts`, `lib/ireland-polygon.ts` (15-pt placeholder), three gates, 5-state `useReducer` machine, `Shell` 420px layout, three hooks, typed storage, prod-safe logger. 14/14 polygon tests pass. |
-| 2 | ✅ | Overpass integration, Roulette animation, RadiusSlider, SpinButton, extended state machine. 24/24 tests pass. Deployed to Vercel. |
+| 2 | ✅ | Overpass integration, Roulette animation, RadiusSlider, SpinButton, extended state machine. 24/24 tests pass. Deployed to Vercel. (Live Overpass was later removed; see Known Truths.) |
 | 3 | ✅ | PubCard, GuiltTripModal, PubMap (Leaflet SSR-safe), Spin Again, Get Directions. Full flow verified on desktop browser in Dublin. |
 | 4 Part 1 | ✅ | Voice files pasted, PersonalityToggle, usePersonality hook, all hardcoded strings removed. |
 | 4 Part 2a | ✅ | Theme-neutral layout + typography foundation, CSS variable system, hydration-safe personality switching, voice routing audit. Build clean. |
@@ -66,7 +66,7 @@ src/
 │   └── ui/                          ✅ RadiusSlider, SpinButton. 🟡 PersonalityToggle (Phase 4)
 ├── constants/
 │   ├── challenges.ts                ✅ 41 challenges (pruned from 51)
-│   ├── config.ts                    ✅ radius bounds, geolocation opts, Overpass URLs
+│   ├── config.ts                    ✅ radius bounds, geolocation opts, pub cap
 │   ├── voices.grumpyBarman.ts       ✅ 60 strings + spinButton
 │   ├── voices.localLad.ts           ✅ 60 strings + spinButton
 │   └── voices.ts                    ✅ Record<Personality, Voice> index
@@ -74,18 +74,29 @@ src/
 │   ├── useGeolocation.ts            ✅ Permissions API pre-check, 10s timeout, 60s maxAge
 │   ├── usePersonality.ts            ✅ localStorage-backed
 │   └── useSpinCount.ts              ✅ increment/reset + shouldShowGuiltTrip derived
+├── data/pubs.json                   ✅ GENERATED. 5,232 ROI pubs, ~100 KB gzipped.
+│                                       Never hand-edit; see Known Truths.
 ├── lib/
 │   ├── geo.ts                       ✅ haversineMeters, walkingMinutes (min 5), ROI_BBOX
-│   ├── ireland-polygon.ts           ✅ 15-pt placeholder polygon (see Known Truths)
+│   ├── ireland-polygon.ts           ✅ real Natural Earth MultiPolygon, 2,394 pts
 │   ├── ireland-polygon.test.ts      ✅ 14 tests
 │   ├── logger.ts                    ✅ prod-safe console wrapper
 │   ├── directions.ts                ✅ Mapbox Directions API wrapper (walking profile, 2500ms timeout)
 │   ├── directions.test.ts           ✅ 9 tests (success, each failure mode)
-│   ├── overpass.ts                  ✅ Overpass query (pub+bar), four mirrors raced via Promise.any
-│   ├── overpass.test.ts             ✅ 10 tests (parseOverpassResponse)
+│   ├── pub-dataset.ts               ✅ findPubsWithin + prefetchPubDataset. Local
+│   │                                   radius filter over data/pubs.json. No network.
+│   ├── pub-dataset.test.ts          ✅ 16 tests (dataset integrity + radius filter)
 │   └── storage.ts                   ✅ typed `offyego:` localStorage wrapper, SSR-safe
 └── types/pub.ts                     ✅ Pub, Personality, Voice
+
+scripts/
+└── build-pub-dataset.mjs            ✅ regenerates src/data/pubs.json from Overpass
+
+.github/workflows/
+└── refresh-pub-data.yml             ✅ monthly cron, opens a PR when the data moves
 ```
+
+There is no `src/app/api/` directory. The app makes no server calls of its own.
 
 ## Working agreements
 
@@ -132,14 +143,16 @@ src/
 ## Pending manual steps (Architect-only, blocking nothing in code)
 
 - Rename local folder `C:\Users\vedan\Random-pub-finder-ireland` to
-  `C:\Users\vedan\offyego` (close VS Code, rename, reopen).
-- Rename GitHub repo `radiculee/Random-pub-finder-ireland` to `offyego`.
-  Consider also renaming the GitHub username.
-- After repo rename: `git remote set-url origin https://github.com/<owner>/offyego.git`
-  then `git push -u origin main` (first push).
-- Reconnect Vercel project to the renamed GitHub repo so future pushes
-  auto-deploy (Vercel dashboard → Settings → Git → disconnect → reconnect).
-- Point `offyego.ie` DNS at Vercel (defer to Phase 6).
+  `C:\Users\vedan\offyego` (close VS Code, rename, reopen). The GitHub
+  repo rename is already done; only the local folder still has the old
+  name.
+- Install the GitHub CLI (`winget install GitHub.cli`). Without it an
+  agent cannot open or merge PRs, only push branches.
+- Fix `isInIreland()` coastal gating (see Known Truths). This one is a
+  live user-facing bug, not housekeeping.
+
+Done: GitHub repo renamed to `radiculee/offyego`, Vercel reconnected,
+`offyego.ie` DNS cut over in `5fbc530`.
 
 ## Known truths worth remembering across sessions
 
@@ -150,25 +163,67 @@ src/
 - **`lucide-react ^1.16.0` IS the current lucide-icons package.** The
   0.x line was renamed to 1.x in March 2026. Do not "fix" this; do not
   downgrade.
-- **The ROI polygon at `src/lib/ireland-polygon.ts` is a 15-point
-  hand-drawn placeholder.** Marked with `// TODO: REPLACE WITH REAL
-  POLYGON.` It correctly excludes Belfast/Derry/Newry and includes
-  Dublin/Cork/Galway/Limerick/Waterford/Sligo/Letterkenny (14/14 tests
-  pass), but the Donegal/NI border is rough. Real Natural Earth GeoJSON
-  is an Architect task before Phase 6 launch.
+- **The ROI polygon at `src/lib/ireland-polygon.ts` is the real Natural
+  Earth 1:10m MultiPolygon** (7 polygons, 2,394 coordinate pairs),
+  generated by `scripts/extract-ireland-polygon.mjs`. This note
+  previously claimed it was a 15-point hand-drawn placeholder; that was
+  stale and cost a session's worth of wrong assumptions. Read the file
+  header before trusting any description of it.
+- **OPEN BUG: `isInIreland()` rejects coastal users.** Natural Earth
+  1:10m has a coarse coastline and omits small islands, so 192 of the
+  5,232 real ROI pubs (3.7%) fall outside it: Cobh, Kinsale, Dingle,
+  Howth, Skerries, Malahide, Cape Clear, the Aran Islands, Blackrock
+  (Louth). Those are inhabited places, so the same polygon that excludes
+  the pub excludes the user standing next to it, gating them to
+  `OUT_OF_IRELAND`. Measured 2026-08-03, not yet fixed. The fix is a
+  better polygon source, NOT filtering those pubs out of the dataset and
+  NOT loosening the gate: OSM's `area["ISO3166-1"="IE"][admin_level=2]`
+  is the better authority and was verified clean on Northern Ireland (of
+  654 pub entries inside the UK boundary within the ROI bounding box,
+  zero appear in our dataset). `src/lib/pub-dataset.test.ts` therefore
+  asserts only that >95% of rows sit inside the polygon.
 - **User-facing strings live ONLY in `src/constants/voices.*.ts`.** If
   you see hardcoded English in a component, that is a bug.
-- **Commits push to the old repo name.** Origin is still `radiculee/Random-pub-finder-ireland` until the Architect completes the rename task. Pushes work fine on the old name.
-- **Deployed to Vercel** at `offyego-bagpc03yl-radiculees-projects.vercel.app`.
-  Repo rename and DNS to `offyego.ie` are pending Architect tasks. Do
-  not share this URL externally - wait for `offyego.ie`.
+- **The repo rename is DONE.** Origin is `radiculee/offyego`. DNS cutover
+  to `offyego.ie` shipped in `5fbc530`. The site is live on the real
+  domain, so pushes to `main` deploy to production, not to a preview.
 - **`vercel.json` exists at repo root** to force Next.js framework
   detection. It worked around stale project settings during Phase 2
   deployment. Check this file before changing Vercel configuration.
+- **Pubs come from a build-time dataset. There is NO live Overpass call.**
+  `src/data/pubs.json` holds all 5,232 ROI pubs (246 KB raw, ~100 KB
+  gzipped, next to a 412 KB spin GIF we already ship). `lib/pub-dataset.ts`
+  filters it locally by haversine; a spin touches no server. Do not
+  reintroduce a runtime Overpass call, and do not add an API route for
+  this. Why it went: Overpass enforces a per-IP slot quota
+  (`overpass-api.de/api/status` reports `Rate limit: 2`) and Vercel
+  serverless shares outbound IPs across customers, so we exhausted it far
+  faster than our traffic implied and roughly a third of spins died at the
+  abort with "The map server's down". Timeout tuning cannot fix that;
+  serverless duration caps and mobile timeouts both impose a ceiling.
+- **Regenerating the dataset:** `node scripts/build-pub-dataset.mjs`,
+  or the monthly `refresh-pub-data.yml` workflow which opens a PR. The
+  script refuses to write data that is below a row-count floor, more than
+  5% smaller than the committed file, or **older** than it. That last
+  guard is not theoretical: `kumi.systems` served a two-month-old snapshot
+  during development, so the primary mirror is exhausted with patient
+  retries before any fallback is tried. Never hand-edit `pubs.json`.
+- **Never add a regional Overpass mirror.** `overpass.osm.ch` was trialled
+  and rejected: it answers a Dublin query in 0.16s with `elements: []`
+  because it only holds Swiss extracts. Fast and empty, it would win any
+  race and silently ship a gutted dataset. Only full-planet mirrors qualify.
+- **Query pubs with `nwr`, never `node`.** The original query asked for
+  nodes only and so never saw the 1,739 ways and 14 relations mapped as
+  building polygons: a third of Irish pubs were invisible. `nwr` with
+  `out center` is what takes 3,479 rows to 5,232.
+- **`MAX_PUBS_IN_MEMORY` is a random sample, not a truncation.** It used
+  to be `slice(0, 50)` over id-ordered Overpass output, which quietly
+  biased every spin in a dense area toward the oldest-mapped pubs. It is
+  now a partial Fisher-Yates sample so any pub in range can come up. Do
+  not "simplify" it back to a slice; that breaks the random-spin promise.
 - **Real-device QA passed** on desktop browser (Dublin) during Phase 2.
   Full golden path verified: age gate → location → Ireland check →
   radius slider → spin → Roulette → result (The Oarsman, 9 min walk).
-  Phase 3 can assume the geolocation + Overpass loop is sound.
 - **`NO_PUBS_FOUND` uses a `messageIndex`-stabilised pattern.** Index is
   computed once at state transition (in the fetch effect before
   dispatch), stored in state, and read at render time. Phase 4 will
@@ -182,10 +237,12 @@ src/
   covers v1 traffic. Do not downgrade to OSM tiles; the Mapbox decision
   is final for v1.
 - **Haversine is the fallback, not the primary.** `lib/geo.ts`
-  `walkingMinutes()` is still used for: (a) the initial estimate on all
-  Overpass pubs, and (b) the tilde fallback when Directions times out or
-  errors. The tilde ("~X min walk") signals to the user that the time is
-  an estimate. Never remove the haversine fallback path.
+  `walkingMinutes()` is still used for: (a) the initial estimate on every
+  pub returned from the dataset, and (b) the tilde fallback when
+  Directions times out or errors. The tilde ("~X min walk") signals to the
+  user that the time is an estimate. Never remove the haversine fallback
+  path: it is what lets a spin still produce a result when Mapbox is
+  unreachable, verified under `context.setOffline(true)`.
 - **Spin animation GIF carries the Guinness harp trademark.** The asset
   at `public/spin/stout-pour.gif` contains the Guinness harp. Decision
   made on 2026-06-09 by the architect to accept this risk for v1 launch.
@@ -219,6 +276,16 @@ asked open-ended questions like "what should we do next?":
 
 Most recent first.
 
+- 2026-08-03: Post-launch reliability fix. Production was failing
+  roughly a third of spins with "The map server's down"; the cause was
+  Overpass's per-IP slot quota amplified by Vercel's shared outbound
+  IPs, not an outage. Shipped a hotfix, then removed live Overpass
+  entirely in favour of a build-time dataset. Fixed two data bugs found
+  on the way: `node`-only querying hid a third of Irish pubs, and the
+  50-pub cap was an id-ordered truncation that biased every spin.
+  Tests 54/54, lint clean, Playwright 5/5 online and 5/5 offline.
+  Found and documented an unrelated open bug: `isInIreland()` gates out
+  coastal users (see Known Truths).
 - 2026-06-02: Phase 5 builder work complete (10 commits, ending at
   6d17ea4). Tests 43/43, lint 0/0, Lighthouse mobile 99/98/100/100
   on commit 6d17ea4. Sentry integrated but end-to-end smoke test
